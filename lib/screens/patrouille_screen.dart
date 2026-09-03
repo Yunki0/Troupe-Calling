@@ -13,22 +13,6 @@ const List<String> kPatrouilleColors = [
   '#2E5266', // bleu nuit
   '#7A3B3B', // bordeaux
   '#4A6D3F', // vert clair
-  '#1F3D2E', // forêt
-  '#C1440E', // ember
-  '#A98F5E', // khaki
-  '#2E5266', // bleu nuit
-  '#7A3B3B', // bordeaux
-  '#4A6D3F', // vert clair
-  '#2A9D8F', // vert d'eau
-  '#E9C46A', // ocre / moutarde
-  '#D4A373', // terre / cuir
-  '#405D72', // bleu orage
-  '#6B5B95', // violet totem
-  '#D64045', // rouge vermillon
-  '#264653', // bleu pétrole
-  '#588157', // vert sauge
-  '#E76F51', // corail / terre cuite
-  '#8C7A6B', // granit / roc
 ];
 
 class PatrouilleScreen extends StatefulWidget {
@@ -172,6 +156,7 @@ class _PatrouilleScreenState extends State<PatrouilleScreen> {
       return const Center(child: CircularProgressIndicator());
     }
     return Scaffold(
+      appBar: AppBar(title: const Text('Patrouilles')),
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(

@@ -188,6 +188,8 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: AppColors.ember,
+          unselectedLabelColor: Colors.white70,
+          labelColor: Colors.white, // Texte sélectionné en blanc
           tabs: const [Tab(text: 'Fiche technique'), Tab(text: 'Badge QR')],
         ),
       ),
@@ -294,46 +296,129 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
     );
   }
 
+  Patrouille? get _currentPatrouille {
+    if (_selectedPatrouilleId == null) return null;
+    for (final p in _patrouilles) {
+      if (p.id == _selectedPatrouilleId) return p;
+    }
+    return null;
+  }
+
+  Color _patrouilleColor(Patrouille? p) {
+    if (p?.couleur == null) return AppColors.khaki;
+    return Color(int.parse(p!.couleur!.substring(1), radix: 16) + 0xFF000000);
+  }
+
   Widget _badgeTab() {
-    return Center(
+    final patrouille = _currentPatrouille;
+    final accentColor = _patrouilleColor(patrouille);
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           RepaintBoundary(
             key: _repaintKey,
             child: Container(
-              color: AppColors.parchment,
-              padding: const EdgeInsets.all(24),
+              width: 300,
+              padding: const EdgeInsets.fromLTRB(22, 20, 22, 24),
+              decoration: BoxDecoration(
+                gradient: AppGradients.header,
+                borderRadius: BorderRadius.circular(26),
+                boxShadow: AppShadows.soft,
+                border: Border.all(color: accentColor.withValues(alpha: 0.5), width: 1.4),
+              ),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.mossLight,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.khaki, width: 3),
-                    ),
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      color: Colors.white,
-                      child: QrImageView(data: _scout.qrToken, size: 200, gapless: true),
+                  Row(
+                    children: [
+                      const Icon(Icons.emoji_nature, color: AppColors.khakiLight, size: 15),
+                      const SizedBox(width: 6),
+                      const Text(
+                        'CARTE SCOUT',
+                        style: TextStyle(
+                          color: AppColors.khakiLight,
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                      const Spacer(),
+                      if (patrouille != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: accentColor.withValues(alpha: 0.22),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: accentColor.withValues(alpha: 0.6)),
+                          ),
+                          child: Text(
+                            patrouille.nom,
+                            style: TextStyle(color: accentColor == AppColors.khaki ? AppColors.khakiLight : Colors.white, fontSize: 10.5, fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+                  CircleAvatar(
+                    radius: 36,
+                    backgroundColor: AppColors.forestDark,
+                    child: CircleAvatar(
+                      radius: 33,
+                      backgroundColor: AppColors.mossLight,
+                      backgroundImage: _scout.photoPath != null ? FileImage(File(_scout.photoPath!)) : null,
+                      child: _scout.photoPath == null
+                          ? Text(_scout.prenom.isNotEmpty ? _scout.prenom[0].toUpperCase() : '?',
+                              style: const TextStyle(fontSize: 26, color: AppColors.forest, fontWeight: FontWeight.bold))
+                          : null,
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Text(_scout.displayName,
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.forest)),
+                  const SizedBox(height: 12),
+                  Text(
+                    _scout.displayName,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  if (_selectedRole != RolePatrouille.membre) ...[
+                    const SizedBox(height: 2),
+                    Text(_selectedRole.label,
+                        style: const TextStyle(color: AppColors.khakiLight, fontSize: 12, fontWeight: FontWeight.w600)),
+                  ],
+                  const SizedBox(height: 20),
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      boxShadow: AppShadows.card,
+                    ),
+                    child: QrImageView(
+                      data: _scout.qrToken,
+                      size: 168,
+                      gapless: true,
+                      eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: AppColors.forest),
+                      dataModuleStyle:
+                          const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: AppColors.ink),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 10),
+          const Text(
+            "Ce badge s'affiche à l'écran ou se plastifie une fois imprimé.",
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 11.5, color: Colors.black54),
+          ),
+          const SizedBox(height: 18),
           ElevatedButton.icon(
             onPressed: _sharing ? null : _shareBadge,
             icon: _sharing
                 ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                 : const Icon(Icons.share),
-            label: Text(_sharing ? 'Préparation...' : 'Partager / imprimer'),
+            label: Text( _sharing ? 'Préparation...' : 'Partager '),
           ),
         ],
       ),

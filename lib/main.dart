@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'theme.dart';
+import 'screens/splash_screen.dart';
 import 'screens/scan_screen.dart';
 import 'screens/roster_screen.dart';
 import 'screens/history_screen.dart';
+import 'screens/dashboard_screen.dart';
 import 'db/database_helper.dart';
 
 void main() async {
@@ -21,7 +23,7 @@ class AppelScoutApp extends StatelessWidget {
       title: 'Troupe Manager',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
-      home: const RootShell(),
+      home: const SplashScreen(next: RootShell()),
     );
   }
 }
@@ -59,11 +61,12 @@ class _RootShellState extends State<RootShell> {
   @override
   Widget build(BuildContext context) {
     final screens = [
+      DashboardScreen(key: ValueKey('dashboard-$refreshTick')),
       ScanScreen(key: ValueKey('scan-$refreshTick')),
       RosterScreen(
         key: ValueKey('roster-$refreshTick'),
-        onTroopNameChanged: (v) => setState(
-            () => troopName = v.trim().isEmpty ? 'Troupe Manager' : v.trim()),
+        onTroopNameChanged: (v) =>
+            setState(() => troopName = v.trim().isEmpty ? 'Troupe Manager' : v.trim()),
         onRosterChanged: triggerRefresh,
       ),
       HistoryScreen(
@@ -77,13 +80,15 @@ class _RootShellState extends State<RootShell> {
       body: IndexedStack(index: _index, children: screens),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _index,
-        onTap: (i) => setState(() => _index = i),
+        onTap: (i) => setState(() {
+          _index = i;
+          if (i == 3) triggerRefresh(); // recalcule les stats à chaque ouverture
+        }),
         items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.qr_code_scanner), label: 'Appel'),
+          BottomNavigationBarItem(icon: Icon(Icons.dashboard_customize), label: 'Dashboard'),
+          BottomNavigationBarItem(icon: Icon(Icons.qr_code_scanner), label: 'Appel'),
           BottomNavigationBarItem(icon: Icon(Icons.groups), label: 'Jeunes'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.event_note), label: 'Historique'),
+          BottomNavigationBarItem(icon: Icon(Icons.event_note), label: 'Historique'),
         ],
       ),
     );

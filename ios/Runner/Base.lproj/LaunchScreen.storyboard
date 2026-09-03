@@ -16,28 +16,19 @@
                     <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleAspectFit" image="LaunchImage" translatesAutoresizingMaskIntoConstraints="NO" id="YRO-k0-Ey4"/>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Troupe Manager" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TROUPE-LABEL">
-                                <fontDescription key="fontDescription" type="boldSystem" pointSize="30"/>
-                                <color key="textColor" red="0.949" green="0.925" blue="0.851" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Présences et badges scouts" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SUBTITLE-LABEL">
-                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                <color key="textColor" red="0.863" green="0.812" blue="0.659" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                            </label>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" image="LaunchBackground" translatesAutoresizingMaskIntoConstraints="NO" id="tWc-Dq-wcI"/>
+                            <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" image="LaunchImage" translatesAutoresizingMaskIntoConstraints="NO" id="YRO-k0-Ey4"></imageView>
                         </subviews>
-                        <color key="backgroundColor" red="0.122" green="0.239" blue="0.18" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="YRO-k0-Ey4" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="1a2-6s-vTC"/>
-                            <constraint firstItem="YRO-k0-Ey4" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" constant="-70" id="4X2-HB-R7a"/>
-                            <constraint firstItem="TROUPE-LABEL" firstAttribute="top" secondItem="YRO-k0-Ey4" secondAttribute="bottom" constant="28" id="TROUPE-TOP"/>
-                            <constraint firstItem="TROUPE-LABEL" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="TROUPE-CENTER"/>
-                            <constraint firstItem="SUBTITLE-LABEL" firstAttribute="top" secondItem="TROUPE-LABEL" secondAttribute="bottom" constant="8" id="SUBTITLE-TOP"/>
-                            <constraint firstItem="SUBTITLE-LABEL" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="SUBTITLE-CENTER"/>
-                            <constraint firstItem="TROUPE-LABEL" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" constant="24" id="TROUPE-LEADING"/>
-                            <constraint firstItem="TROUPE-LABEL" firstAttribute="trailing" secondItem="Ze5-6b-2t3" secondAttribute="trailing" constant="-24" id="TROUPE-TRAILING"/>
-                            <constraint firstItem="SUBTITLE-LABEL" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" constant="24" id="SUBTITLE-LEADING"/>
-                            <constraint firstItem="SUBTITLE-LABEL" firstAttribute="trailing" secondItem="Ze5-6b-2t3" secondAttribute="trailing" constant="-24" id="SUBTITLE-TRAILING"/>
+                            <constraint firstItem="YRO-k0-Ey4" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="3T2-ad-Qdv"/>
+                            <constraint firstItem="tWc-Dq-wcI" firstAttribute="bottom" secondItem="Ze5-6b-2t3" secondAttribute="bottom" id="RPx-PI-7Xg"/>
+                            <constraint firstItem="tWc-Dq-wcI" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="SdS-ul-q2q"/>
+                            <constraint firstAttribute="trailing" secondItem="tWc-Dq-wcI" secondAttribute="trailing" id="Swv-Gf-Rwn"/>
+                            <constraint firstAttribute="trailing" secondItem="YRO-k0-Ey4" secondAttribute="trailing" id="TQA-XW-tRk"/>
+                            <constraint firstItem="YRO-k0-Ey4" firstAttribute="bottom" secondItem="Ze5-6b-2t3" secondAttribute="bottom" id="duK-uY-Gun"/>
+                            <constraint firstItem="tWc-Dq-wcI" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="kV7-tw-vXt"/>
+                            <constraint firstItem="YRO-k0-Ey4" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="xPn-NY-SIU"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -46,4 +37,8 @@
             <point key="canvasLocation" x="53" y="375"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="LaunchImage" width="168" height="185"/>
+        <image name="LaunchBackground" width="1" height="1"/>
+    </resources>
 </document>

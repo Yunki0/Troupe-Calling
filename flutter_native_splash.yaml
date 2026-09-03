@@ -1,0 +1,26 @@
+# -----------------------------------------------------------------
+# Configuration du splash natif (Android/iOS), généré par le package
+# flutter_native_splash. Voir NATIVE_SPLASH.md pour les instructions
+# d'installation complètes.
+#
+# Le but : que ce splash natif (obligatoire, affiché pendant que le
+# moteur Flutter démarre) soit visuellement identique au tout premier
+# instant du splash animé de lib/screens/splash_screen.dart, pour que
+# la transition entre les deux soit invisible à l'œil.
+# -----------------------------------------------------------------
+flutter_native_splash:
+  color: "#1E3D2B"            # AppColors.forest — même fond que le splash animé
+  image: assets/splash_logo.png
+
+  color_dark: "#1E3D2B"
+  image_dark: assets/splash_logo.png
+
+  android_12:
+    image: assets/splash_logo.png
+    icon_background_color: "#1E3D2B"
+    image_dark: assets/splash_logo.png
+    icon_background_color_dark: "#1E3D2B"
+
+  android: true
+  ios: true
+  web: false
