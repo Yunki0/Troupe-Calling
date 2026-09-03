@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Troupe Calling — installer l'application</title>
+<meta name="description" content="Téléchargez Troupe Calling, l'application de présence par QR code pour votre troupe scoute." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --forest:#1E3D2B;
+    --forest-dark:#11251A;
+    --parchment:#F4EFE1;
+    --parchment-deep:#EAE1C8;
+    --khaki:#AD9159;
+    --khaki-light:#E1D3AC;
+    --ember:#C24A16;
+    --ember-dark:#9C3A10;
+    --gold:#C79A3D;
+    --ink:#23261E;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--parchment);
+    color:var(--ink);
+    font-family:'Source Sans 3', -apple-system, sans-serif;
+    line-height:1.55;
+  }
+  h1,h2,.display{
+    font-family:'Fraunces', Georgia, serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+  .mono{
+    font-family:'IBM Plex Mono', monospace;
+  }
+  a{color:inherit;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    background:
+      radial-gradient(ellipse 900px 500px at 50% -10%, rgba(199,154,61,0.18), transparent),
+      linear-gradient(160deg, var(--forest) 0%, var(--forest-dark) 100%);
+    color:var(--parchment);
+    padding:5.5rem 1.5rem 4.5rem;
+    text-align:center;
+  }
+  .badge{
+    width:104px;
+    height:104px;
+    margin:0 auto 1.75rem;
+    border-radius:50%;
+    background:var(--forest-dark);
+    border:3px solid var(--khaki);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 18px 40px rgba(0,0,0,0.35);
+  }
+  .badge svg{width:46px;height:46px;}
+  .hero h1{
+    font-size:clamp(2.1rem, 5vw, 3rem);
+    margin:0 0 0.6rem;
+    color:#fff;
+  }
+  .hero .tagline{
+    font-size:1.05rem;
+    color:var(--khaki-light);
+    max-width:32ch;
+    margin:0 auto 2.4rem;
+  }
+
+  .download-card{
+    max-width:380px;
+    margin:0 auto;
+    background:rgba(244,239,225,0.06);
+    border:1px solid rgba(225,211,172,0.35);
+    border-radius:18px;
+    padding:1.6rem 1.5rem;
+    backdrop-filter:blur(2px);
+  }
+  .btn-download{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:0.6rem;
+    width:100%;
+    background:var(--ember);
+    color:#fff;
+    border:none;
+    padding:0.95rem 1.2rem;
+    border-radius:10px;
+    font-size:1.02rem;
+    font-weight:600;
+    text-decoration:none;
+    box-shadow:0 10px 24px rgba(194,74,22,0.35);
+    transition:background 0.15s ease, transform 0.1s ease;
+  }
+  .btn-download:hover{background:var(--ember-dark);}
+  .btn-download:active{transform:translateY(1px);}
+  .btn-download svg{width:19px;height:19px;flex-shrink:0;}
+  .btn-download.disabled{
+    background:rgba(225,211,172,0.15);
+    color:var(--khaki-light);
+    box-shadow:none;
+    pointer-events:none;
+  }
+  .dl-meta{
+    margin-top:0.85rem;
+    font-size:0.82rem;
+    color:var(--khaki-light);
+    display:flex;
+    justify-content:center;
+    gap:0.55rem;
+    flex-wrap:wrap;
+  }
+  .dl-meta span:not(:last-child)::after{content:"·"; margin-left:0.55rem; opacity:0.6;}
+  .status-msg{
+    font-size:0.9rem;
+    color:var(--khaki-light);
+    padding:0.4rem 0;
+  }
+
+  /* ---------- INSTALL STEPS ---------- */
+  .section{
+    max-width:640px;
+    margin:0 auto;
+    padding:4rem 1.5rem;
+  }
+  .section h2{
+    font-size:1.6rem;
+    margin:0 0 2rem;
+    color:var(--forest);
+  }
+  .steps{
+    list-style:none;
+    margin:0;
+    padding:0;
+    counter-reset:step;
+  }
+  .steps li{
+    counter-increment:step;
+    display:grid;
+    grid-template-columns:2.4rem 1fr;
+    gap:1rem;
+    padding:1.1rem 0;
+    border-bottom:1px solid var(--parchment-deep);
+  }
+  .steps li:last-child{border-bottom:none;}
+  .steps li::before{
+    content:counter(step);
+    font-family:'Fraunces', serif;
+    font-size:1.3rem;
+    color:var(--ember);
+    background:var(--parchment-deep);
+    width:2.4rem;
+    height:2.4rem;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .steps h3{
+    margin:0.15rem 0 0.25rem;
+    font-size:1.02rem;
+    font-family:'Source Sans 3', sans-serif;
+    font-weight:700;
+  }
+  .steps p{margin:0; color:#4a4a40; font-size:0.95rem;}
+
+  /* ---------- LOGBOOK ---------- */
+  .logbook-section{background:var(--parchment-deep);}
+  .logbook{
+    background:var(--parchment);
+    border:1px solid var(--khaki-light);
+    border-radius:14px;
+    padding:1.8rem 1.9rem;
+  }
+  .logbook-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    flex-wrap:wrap;
+    gap:0.5rem;
+    margin-bottom:0.9rem;
+    padding-bottom:0.9rem;
+    border-bottom:1px dashed var(--khaki);
+  }
+  .logbook-header .tag{
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-size:1.25rem;
+    color:var(--forest);
+  }
+  .logbook-header .date{
+    font-size:0.8rem;
+    color:#7a7364;
+  }
+  .logbook-body{
+    white-space:pre-wrap;
+    font-size:0.95rem;
+    color:#3a3830;
+  }
+  .logbook-empty{color:#7a7364; font-style:italic;}
+
+  footer{
+    text-align:center;
+    padding:2.8rem 1.5rem 3.2rem;
+    font-size:0.85rem;
+    color:#7a7364;
+  }
+  footer a{text-decoration:underline; text-underline-offset:2px;}
+
+  @media (max-width:480px){
+    .hero{padding:4rem 1.25rem 3.5rem;}
+    .section{padding:3rem 1.25rem;}
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="badge">
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="50,10 63,52 50,44 37,52" fill="#F4EFE1"/>
+      <circle cx="24" cy="58" r="13" fill="#F4EFE1"/>
+      <circle cx="76" cy="58" r="13" fill="#F4EFE1"/>
+      <rect x="43" y="60" width="14" height="26" fill="#F4EFE1"/>
+    </svg>
+  </div>
+  <h1>Troupe Calling</h1>
+  <p class="tagline">L'appel de la troupe, scanné en un geste — hors ligne, badge en main.</p>
+
+  <div class="download-card">
+    <a id="downloadBtn" class="btn-download disabled" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/></svg>
+      <span id="downloadLabel">Recherche de la dernière version…</span>
+    </a>
+    <div class="dl-meta" id="dlMeta"></div>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Installer sur ton téléphone</h2>
+  <ul class="steps">
+    <li>
+      <div>
+        <h3>Télécharge le fichier</h3>
+        <p>Touche le bouton ci-dessus depuis ton téléphone Android — le fichier <span class="mono">.apk</span> se télécharge directement.</p>
+      </div>
+    </li>
+    <li>
+      <div>
+        <h3>Autorise l'installation</h3>
+        <p>Android peut demander d'autoriser "l'installation d'applications inconnues" pour ton navigateur. C'est normal pour une app installée hors Play Store — accepte pour continuer.</p>
+      </div>
+    </li>
+    <li>
+      <div>
+        <h3>Ouvre et installe</h3>
+        <p>Ouvre le fichier téléchargé depuis tes notifications ou ton dossier Téléchargements, puis suis les instructions à l'écran.</p>
+      </div>
+    </li>
+  </ul>
+</section>
+
+<section class="section logbook-section">
+  <h2>Carnet de bord</h2>
+  <div class="logbook">
+    <div class="logbook-header">
+      <span class="tag mono" id="logVersion">—</span>
+      <span class="date" id="logDate"></span>
+    </div>
+    <div class="logbook-body" id="logBody">Chargement des notes de version…</div>
+  </div>
+</section>
+
+<footer>
+  Développé pour la troupe, avec le code source sur
+  <a href="https://github.com/Yunki0/Troupe-Calling" target="_blank" rel="noopener">GitHub</a>.
+</footer>
+
+<script>
+const REPO = 'Yunki0/Troupe-Calling';
+
+function formatBytes(bytes) {
+  if (!bytes) return '';
+  const mb = bytes / (1024 * 1024);
+  return mb >= 1 ? mb.toFixed(1).replace(/\.0$/, '') + ' Mo' : Math.round(bytes / 1024) + ' Ko';
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+async function loadRelease() {
+  const btn = document.getElementById('downloadBtn');
+  const label = document.getElementById('downloadLabel');
+  const meta = document.getElementById('dlMeta');
+  const logVersion = document.getElementById('logVersion');
+  const logDate = document.getElementById('logDate');
+  const logBody = document.getElementById('logBody');
+
+  try {
+    const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`);
+
+    if (res.status === 404) {
+      label.textContent = 'Aucune version publiée pour le moment';
+      logBody.innerHTML = '<span class="logbook-empty">Rien au carnet pour l\'instant — la première version arrive bientôt.</span>';
+      return;
+    }
+    if (!res.ok) throw new Error('request failed');
+
+    const release = await res.json();
+    const apkAsset = (release.assets || []).find(a => a.name.toLowerCase().endsWith('.apk'));
+
+    if (!apkAsset) {
+      label.textContent = 'Version publiée sans fichier .apk';
+      meta.innerHTML = `<span><a href="https://github.com/${REPO}/releases" target="_blank" rel="noopener">Voir sur GitHub</a></span>`;
+    } else {
+      btn.href = apkAsset.browser_download_url;
+      btn.classList.remove('disabled');
+      btn.setAttribute('download', apkAsset.name);
+      label.textContent = `Télécharger ${release.tag_name}`;
+      meta.innerHTML = `<span>${formatBytes(apkAsset.size)}</span><span>Android</span><span>${formatDate(release.published_at)}</span>`;
+    }
+
+    logVersion.textContent = release.tag_name || '—';
+    logDate.textContent = formatDate(release.published_at);
+    logBody.textContent = release.body && release.body.trim()
+      ? release.body.trim()
+      : 'Pas de notes de version détaillées pour cette publication.';
+
+  } catch (err) {
+    label.textContent = 'Impossible de charger la dernière version';
+    meta.innerHTML = `<span><a href="https://github.com/${REPO}/releases" target="_blank" rel="noopener">Voir les releases sur GitHub</a></span>`;
+    logBody.innerHTML = `<span class="logbook-empty">Impossible de charger le carnet de bord. <a href="https://github.com/${REPO}/releases" target="_blank" rel="noopener">Voir sur GitHub</a>.</span>`;
+  }
+}
+
+loadRelease();
+</script>
+
+</body>
+</html>
