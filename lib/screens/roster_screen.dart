@@ -1,6 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../db/database_helper.dart';
 import '../models/models.dart';
 import '../repositories/patrouille_repository.dart';
@@ -118,6 +121,36 @@ class _RosterScreenState extends State<RosterScreen> {
     }
   }
 
+  Future<void> _editScout(Scout scout) async {
+    final result = await showDialog<_ScoutEditResult>(
+      context: context,
+      builder: (_) => _EditScoutDialog(scout: scout),
+    );
+    if (result == null) return;
+    try {
+      await _repository.updateProfile(
+        id: scout.id,
+        prenom: result.prenom,
+        nom: result.nom,
+      );
+      await _load();
+      widget.onRosterChanged();
+      _showMessage('Scout modifié. Son QR code reste inchangé.');
+    } catch (_) {
+      _showMessage('Impossible de modifier ce scout.');
+    }
+  }
+
+  Future<void> _saveTroopName() async {
+    final name = _troopController.text.trim();
+    try {
+      await DatabaseHelper.instance.setSetting('troopName', name);
+      if (mounted) widget.onTroopNameChanged(name);
+    } catch (_) {
+      _showMessage('Impossible d’enregistrer le nom.');
+    }
+  }
+
   Future<void> _openProfile(Scout scout) async {
     await Navigator.push(
       context,
@@ -134,6 +167,42 @@ class _RosterScreenState extends State<RosterScreen> {
       MaterialPageRoute(builder: (_) => const PatrouilleScreen()),
     );
     _load();
+  }
+
+  Future<void> _exportTrombinoscope() async {
+    if (_scouts.isEmpty) {
+      _showMessage('Aucun scout à exporter.');
+      return;
+    }
+    try {
+      final data = {
+        'troupe': _troopController.text.trim(),
+        'exportedAt': DateTime.now().toIso8601String(),
+        'scouts': _scouts.map((s) {
+          final patrouille = s.patrouilleId != null ? _patrouillesById[s.patrouilleId] : null;
+          return {
+            'id': s.id,
+            'prenom': s.prenom,
+            'nom': s.nom,
+            'qrToken': s.qrToken,
+            'statut': s.statut.name,
+            'patrouille': patrouille?.nom,
+            'patrouilleCouleur': patrouille?.couleur,
+            'role': s.rolePatrouille.name,
+          };
+        }).toList(),
+      };
+      final jsonStr = const JsonEncoder.withIndent('  ').convert(data);
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/trombinoscope.json');
+      await file.writeAsString(jsonStr);
+      await Share.shareXFiles(
+        [XFile(file.path)],
+        text: 'Trombinoscope — ${_troopController.text.trim().isEmpty ? "troupe" : _troopController.text.trim()}',
+      );
+    } catch (_) {
+      _showMessage("Impossible d'exporter le trombinoscope.");
+    }
   }
 
   void _showMessage(String message) {
@@ -159,6 +228,26 @@ class _RosterScreenState extends State<RosterScreen> {
     return ListView(
       padding: const EdgeInsets.all(12),
       children: [
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Nom de la troupe',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: AppColors.forest)),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _troopController,
+                  decoration:
+                      const InputDecoration(hintText: 'Ex : Troupe des Aigles'),
+                  onSubmitted: (_) => _saveTroopName(),
+                ),
+              ],
+            ),
+          ),
+        ),
         const SizedBox(height: 12),
         Card(
           child: ListTile(
@@ -169,6 +258,16 @@ class _RosterScreenState extends State<RosterScreen> {
                 : '${_patrouillesById.length} patrouille(s)'),
             trailing: const Icon(Icons.chevron_right),
             onTap: _openPatrouilles,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          child: ListTile(
+            leading: const Icon(Icons.ios_share, color: AppColors.forest),
+            title: const Text('Partager avec les chefs iOS', style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: const Text('Exporte le trombinoscope pour le site web de scan iOS'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: _exportTrombinoscope,
           ),
         ),
         const SizedBox(height: 12),
@@ -278,6 +377,11 @@ class _RosterScreenState extends State<RosterScreen> {
               onPressed: () => _toggleStatus(scout),
               icon: Icon(active ? Icons.toggle_on : Icons.toggle_off,
                   color: active ? AppColors.moss : Colors.black38, size: 32),
+            ),
+            IconButton(
+              tooltip: 'Modifier',
+              onPressed: () => _editScout(scout),
+              icon: const Icon(Icons.edit_outlined),
             ),
           ],
         ),

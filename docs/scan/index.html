@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#1E3D2B" />
+<title>Troupe Calling — Appel</title>
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="icons/icon-192.png" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div id="app">
+
+  <header>
+    <h1 id="troopTitle">Troupe Calling</h1>
+    <div class="subtitle" id="dateSubtitle"></div>
+  </header>
+
+  <main>
+
+    <!-- APPEL -->
+    <section id="view-scan" class="view active">
+      <div class="date-picker">
+        <label style="margin:0;flex-shrink:0;">Séance du</label>
+        <input id="appelDate" type="date" />
+      </div>
+
+      <div id="noRosterMsg" class="card" style="display:none;">
+        <p>Aucun trombinoscope importé pour l'instant.</p>
+        <p class="hint">Va dans l'onglet "Trombinoscope" pour importer le fichier reçu de ton chef d'unité.</p>
+      </div>
+
+      <div id="scanArea">
+        <div class="scan-wrap">
+          <video id="video" playsinline muted></video>
+          <div class="scan-frame"></div>
+          <div class="scan-overlay-msg" id="scanMsg">Touche pour activer la caméra</div>
+          <div class="flash" id="flash"><div id="flashText"></div></div>
+        </div>
+        <canvas id="canvas" style="display:none;"></canvas>
+
+        <div class="stat-row">
+          <div class="stat"><b id="presentCount">0</b><span>présents</span></div>
+          <div class="stat"><b id="totalCount">0</b><span>inscrits</span></div>
+        </div>
+
+        <div class="scan-list" id="scanList"></div>
+        <p class="hint">Touche le badge à côté d'un nom pour pointer manuellement.</p>
+      </div>
+    </section>
+
+    <!-- TROMBINOSCOPE -->
+    <section id="view-roster" class="view">
+      <div class="card">
+        <h2>Importer le trombinoscope</h2>
+        <p class="hint" style="margin-top:0;">Reçois le fichier <span style="font-family:monospace;">trombinoscope.json</span> depuis l'app Android de ton chef d'unité (AirDrop, mail, WhatsApp...), puis importe-le ici.</p>
+        <input id="fileInput" type="file" accept="application/json,.json" />
+        <p class="hint">Ou colle le contenu du fichier directement :</p>
+        <textarea id="jsonPaste" placeholder="{ &quot;scouts&quot;: [...] }"></textarea>
+        <button class="btn ember" id="importBtn">Importer</button>
+      </div>
+      <div class="card">
+        <h2>Liste actuelle</h2>
+        <div id="rosterStatus" class="hint">Aucun trombinoscope importé.</div>
+        <div id="rosterList"></div>
+      </div>
+    </section>
+
+    <!-- HISTORIQUE -->
+    <section id="view-historique" class="view">
+      <div class="card">
+        <h2>Voir une séance</h2>
+        <input id="histDate" type="date" />
+        <div id="histTableWrap"></div>
+        <button class="btn ghost" id="exportCsvBtn" style="margin-top:.8rem;">Exporter en CSV</button>
+      </div>
+    </section>
+
+  </main>
+
+  <nav>
+    <button class="nav-btn active" data-view="scan"><span class="ic">&#9678;</span>Appel</button>
+    <button class="nav-btn" data-view="roster"><span class="ic">&#128100;</span>Trombinoscope</button>
+    <button class="nav-btn" data-view="historique"><span class="ic">&#128197;</span>Historique</button>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script src="vendor/jsQR.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
