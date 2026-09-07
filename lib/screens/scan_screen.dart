@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -226,7 +227,13 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
     if (_loading) return const Center(child: CircularProgressIndicator());
     final reunion = _reunion;
     if (reunion == null) return _emptyState();
-    final total = _scouts.length;
+
+    // Basé sur reunion.totalScouts (effectif figé à l'ouverture de la
+    // réunion), et non sur _scouts.length (effectif actif en direct) :
+    // sinon le taux affiché ici pendant l'appel peut diverger de celui
+    // recalculé après coup dans l'historique pour cette même réunion, si
+    // un scout est ajouté/réactivé pendant que la réunion est en cours.
+    final total = reunion.totalScouts > 0 ? reunion.totalScouts : _scouts.length;
     final present = _presences.length;
     final rate = total == 0 ? 0 : present * 100 / total;
 

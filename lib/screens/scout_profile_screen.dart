@@ -49,6 +49,14 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _scout = widget.scout;
+    _syncControllersFromScout();
+    _loadPatrouilles();
+  }
+
+  /// Recopie les champs de [_scout] vers les controllers / sélections
+  /// d'écran. Centralisé ici pour être ré-appelable après un rechargement
+  /// depuis la base, et pas seulement à l'ouverture de l'écran.
+  void _syncControllersFromScout() {
     _prenomCtrl.text = _scout.prenom;
     _nomCtrl.text = _scout.nom;
     _lieuNaissanceCtrl.text = _scout.lieuNaissance ?? '';
@@ -58,7 +66,6 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
     _dateNaissance = _scout.dateNaissance != null ? DateTime.tryParse(_scout.dateNaissance!) : null;
     _selectedPatrouilleId = _scout.patrouilleId;
     _selectedRole = _scout.rolePatrouille;
-    _loadPatrouilles();
   }
 
   Future<void> _loadPatrouilles() async {
@@ -79,15 +86,20 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
   }
 
   Future<void> _pickPhoto(ImageSource source) async {
-    final picked = await _picker.pickImage(source: source, imageQuality: 85, maxWidth: 900);
-    if (picked == null) return;
-    final dir = await getApplicationDocumentsDirectory();
-    final photosDir = Directory('${dir.path}/photos');
-    if (!await photosDir.exists()) await photosDir.create(recursive: true);
-    final destPath = '${photosDir.path}/${_scout.id}.jpg';
-    await File(picked.path).copy(destPath);
-    await _scoutRepo.updatePhoto(_scout.id, destPath);
-    setState(() => _scout = _scout.copyWith(photoPath: destPath));
+    try {
+      final picked = await _picker.pickImage(source: source, imageQuality: 85, maxWidth: 900);
+      if (picked == null) return;
+      final dir = await getApplicationDocumentsDirectory();
+      final photosDir = Directory('${dir.path}/photos');
+      if (!await photosDir.exists()) await photosDir.create(recursive: true);
+      final destPath = '${photosDir.path}/${_scout.id}.jpg';
+      await File(picked.path).copy(destPath);
+      await _scoutRepo.updatePhoto(_scout.id, destPath);
+      if (!mounted) return;
+      setState(() => _scout = _scout.copyWith(photoPath: destPath));
+    } catch (_) {
+      _message("Impossible de mettre à jour la photo. Vérifie les autorisations caméra/galerie de l'app.");
+    }
   }
 
   void _showPhotoSourceSheet() {
@@ -126,8 +138,21 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
     if (picked != null) setState(() => _dateNaissance = picked);
   }
 
+  /// Quand on retire la patrouille, le rôle n'a plus de sens : on le
+  /// remet à "membre" immédiatement dans l'UI (la base le fait déjà de son
+  /// côté, mais l'écran doit refléter la même règle avant même d'enregistrer).
+  void _onPatrouilleChanged(String? patrouilleId) {
+    setState(() {
+      _selectedPatrouilleId = patrouilleId;
+      if (patrouilleId == null) {
+        _selectedRole = RolePatrouille.membre;
+      }
+    });
+  }
+
   Future<void> _save() async {
     setState(() => _saving = true);
+    String? patrouilleError;
     try {
       await _scoutRepo.updateProfile(
         id: _scout.id,
@@ -142,6 +167,7 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
         parentNom: _parentNomCtrl.text.trim().isEmpty ? null : _parentNomCtrl.text.trim(),
         parentContact: _parentContactCtrl.text.trim().isEmpty ? null : _parentContactCtrl.text.trim(),
       );
+
       try {
         await _scoutRepo.assignPatrouille(
           scoutId: _scout.id,
@@ -149,9 +175,27 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
           role: _selectedRole,
         );
       } on StateError catch (e) {
-        _message(e.message);
+        patrouilleError = e.message;
       }
-      if (mounted) _message('Fiche enregistrée.');
+
+      // Recharge systématiquement depuis la base, que l'affectation de
+      // patrouille ait réussi ou non : l'écran doit toujours refléter l'état
+      // réel de SQLite, jamais une sélection locale non confirmée.
+      final reloaded = await _scoutRepo.findById(_scout.id);
+      if (reloaded != null && mounted) {
+        setState(() {
+          _scout = reloaded;
+          _syncControllersFromScout();
+        });
+      }
+
+      if (mounted) {
+        _message(patrouilleError == null
+            ? 'Fiche enregistrée.'
+            : 'Fiche enregistrée. Patrouille non modifiée : $patrouilleError');
+      }
+    } catch (_) {
+      _message("Impossible d'enregistrer la fiche. Réessaie.");
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -171,13 +215,19 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
         [XFile(file.path)],
         text: 'Badge scout — ${_scout.displayName}',
       );
+    } catch (_) {
+      _message('Impossible de préparer le badge à partager. Réessaie.');
     } finally {
       if (mounted) setState(() => _sharing = false);
     }
   }
 
   void _message(String msg) {
-    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    if (mounted) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(msg)));
+    }
   }
 
   @override
@@ -188,8 +238,6 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: AppColors.ember,
-          unselectedLabelColor: Colors.white70,
-          labelColor: Colors.white, // Texte sélectionné en blanc
           tabs: const [Tab(text: 'Fiche technique'), Tab(text: 'Badge QR')],
         ),
       ),
@@ -269,7 +317,7 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
             const DropdownMenuItem<String?>(value: null, child: Text('Aucune')),
             ..._patrouilles.map((p) => DropdownMenuItem<String?>(value: p.id, child: Text(p.nom))),
           ],
-          onChanged: (v) => setState(() => _selectedPatrouilleId = v),
+          onChanged: _onPatrouilleChanged,
         ),
         const SizedBox(height: 12),
         if (_selectedPatrouilleId != null)
@@ -297,9 +345,9 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
   }
 
   Patrouille? get _currentPatrouille {
-    if (_selectedPatrouilleId == null) return null;
+    if (_scout.patrouilleId == null) return null;
     for (final p in _patrouilles) {
-      if (p.id == _selectedPatrouilleId) return p;
+      if (p.id == _scout.patrouilleId) return p;
     }
     return null;
   }
@@ -379,9 +427,9 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
                     textAlign: TextAlign.center,
                     style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  if (_selectedRole != RolePatrouille.membre) ...[
+                  if (_scout.rolePatrouille != RolePatrouille.membre) ...[
                     const SizedBox(height: 2),
-                    Text(_selectedRole.label,
+                    Text(_scout.rolePatrouille.label,
                         style: const TextStyle(color: AppColors.khakiLight, fontSize: 12, fontWeight: FontWeight.w600)),
                   ],
                   const SizedBox(height: 20),
@@ -402,6 +450,10 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
                     ),
                   ),
                   const SizedBox(height: 10),
+                  Text(
+                    _scout.qrToken,
+                    style: const TextStyle(color: AppColors.khakiLight, fontSize: 9.5, letterSpacing: 0.5, fontFamily: 'monospace'),
+                  ),
                 ],
               ),
             ),
@@ -418,7 +470,7 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
             icon: _sharing
                 ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                 : const Icon(Icons.share),
-            label: Text( _sharing ? 'Préparation...' : 'Partager '),
+            label: Text(_sharing ? 'Préparation...' : 'Partager / imprimer'),
           ),
         ],
       ),

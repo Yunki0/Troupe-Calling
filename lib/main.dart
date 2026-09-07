@@ -61,7 +61,6 @@ class _RootShellState extends State<RootShell> {
   @override
   Widget build(BuildContext context) {
     final screens = [
-      DashboardScreen(key: ValueKey('dashboard-$refreshTick')),
       ScanScreen(key: ValueKey('scan-$refreshTick')),
       RosterScreen(
         key: ValueKey('roster-$refreshTick'),
@@ -73,6 +72,8 @@ class _RootShellState extends State<RootShell> {
         key: ValueKey('history-$refreshTick'),
         onReunionChanged: triggerRefresh,
       ),
+      DashboardScreen(key: ValueKey('dashboard-$refreshTick')),
+
     ];
 
     return Scaffold(
@@ -85,10 +86,10 @@ class _RootShellState extends State<RootShell> {
           if (i == 3) triggerRefresh(); // recalcule les stats à chaque ouverture
         }),
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard_customize), label: 'Dashboard'),
           BottomNavigationBarItem(icon: Icon(Icons.qr_code_scanner), label: 'Appel'),
           BottomNavigationBarItem(icon: Icon(Icons.groups), label: 'Jeunes'),
           BottomNavigationBarItem(icon: Icon(Icons.event_note), label: 'Historique'),
+          BottomNavigationBarItem(icon: Icon(Icons.dashboard_customize), label: 'Dashboard'),
         ],
       ),
     );

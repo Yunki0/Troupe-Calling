@@ -43,9 +43,15 @@ class ReunionRepository {
     }
   }
 
+  /// Termine la réunion ouverte identifiée par [id].
+  ///
+  /// Lève une [StateError] si aucune ligne n'a été modifiée — ce qui
+  /// signifie soit que la réunion n'existe pas, soit qu'elle est déjà
+  /// terminée. Sans cette vérification, l'écran affichait "Réunion
+  /// terminée" même quand rien ne s'était réellement passé en base.
   Future<void> finish(String id, {required String heureFin}) async {
     final db = await _databaseHelper.database;
-    await db.update(
+    final count = await db.update(
       'reunions',
       {
         'heure_fin': heureFin,
@@ -54,15 +60,26 @@ class ReunionRepository {
       where: 'id = ? AND statut = ?',
       whereArgs: [id, ReunionStatus.ouverte.name],
     );
+    if (count == 0) {
+      throw StateError('Cette réunion est déjà terminée ou introuvable.');
+    }
   }
 
+  /// Met à jour le compte-rendu d'une réunion encore ouverte.
+  ///
+  /// Même principe que [finish] : une mise à jour silencieuse de 0 ligne
+  /// (réunion déjà terminée, ou id inconnu) devient une erreur explicite
+  /// plutôt qu'un faux succès.
   Future<void> updateNotes(String id, String compteRendu) async {
     final db = await _databaseHelper.database;
-    await db.update(
+    final count = await db.update(
       'reunions',
       {'compte_rendu': compteRendu.trim()},
       where: 'id = ? AND statut = ?',
       whereArgs: [id, ReunionStatus.ouverte.name],
     );
+    if (count == 0) {
+      throw StateError('Impossible de modifier : réunion déjà terminée ou introuvable.');
+    }
   }
 }
