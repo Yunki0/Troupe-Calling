@@ -2,17 +2,13 @@ import 'package:sqflite/sqflite.dart';
 import '../db/database_helper.dart';
 import '../models/models.dart';
 
-/// ⚠️ À CONFIRMER — ce chiffre n'a jamais été validé explicitement dans la
-/// conception de l'app. Il vient d'une recommandation générique, pas d'une
-/// règle que tu as fixée toi-même. Ajuste-le ici si besoin ; c'est le seul
-/// endroit à changer.
 const int kMaxScoutsPerPatrouille = 7;
 
 class ScoutRepository {
   final DatabaseHelper _databaseHelper;
 
   ScoutRepository({DatabaseHelper? databaseHelper})
-      : _databaseHelper = databaseHelper ?? DatabaseHelper.instance;
+    : _databaseHelper = databaseHelper ?? DatabaseHelper.instance;
 
   Future<List<Scout>> getAll({bool includeInactive = true}) async {
     final db = await _databaseHelper.database;
@@ -40,8 +36,11 @@ class ScoutRepository {
 
   Future<List<Scout>> getSansPatrouille() async {
     final db = await _databaseHelper.database;
-    final rows = await db.query('scouts',
-        where: 'patrouille_id IS NULL', orderBy: 'nom COLLATE NOCASE ASC');
+    final rows = await db.query(
+      'scouts',
+      where: 'patrouille_id IS NULL',
+      orderBy: 'nom COLLATE NOCASE ASC',
+    );
     return rows.map(Scout.fromMap).toList();
   }
 
@@ -58,8 +57,12 @@ class ScoutRepository {
 
   Future<Scout?> findById(String id) async {
     final db = await _databaseHelper.database;
-    final rows =
-        await db.query('scouts', where: 'id = ?', whereArgs: [id], limit: 1);
+    final rows = await db.query(
+      'scouts',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
     return rows.isEmpty ? null : Scout.fromMap(rows.first);
   }
 
@@ -68,21 +71,26 @@ class ScoutRepository {
   /// ligne existante.
   Future<void> create(Scout scout) async {
     final db = await _databaseHelper.database;
-    await db.insert(
-      'scouts',
-      scout.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.abort,
-    );
+    await db.insert('scouts', scout.toMap());
   }
 
   /// Modifie un scout existant. N'écrase jamais un autre enregistrement :
   /// cible explicitement la ligne par son id.
   Future<void> update(Scout scout) async {
     final db = await _databaseHelper.database;
-    final map = scout.toMap()..remove('id');
-    final count = await db.update('scouts', map, where: 'id = ?', whereArgs: [scout.id]);
+
+    final count = await db.update(
+      'scouts',
+      scout.toMap(),
+      where: 'id = ?',
+      whereArgs: [scout.id],
+    );
+
     if (count == 0) {
-      throw StateError('Scout introuvable (id: ${scout.id}).');
+      throw StateError(
+        'Impossible de modifier le scout : '
+        '${scout.id} introuvable.',
+      );
     }
   }
 
@@ -186,6 +194,14 @@ class ScoutRepository {
   ///   quelqu'un d'autre (protégé aussi par un index unique en base) ;
   /// - la patrouille a déjà atteint [kMaxScoutsPerPatrouille] membres et que
   ///   ce scout n'en fait pas déjà partie.
+  ///
+  /// Le contrôle de la limite de [kMaxScoutsPerPatrouille] et l'écriture
+  /// sont faits dans une même transaction : avant ce correctif, un
+  /// double-tap (ou deux affectations quasi simultanées vers la même
+  /// patrouille) pouvait lire le même compte "avant" pour les deux appels et
+  /// faire dépasser la limite, car rien ne protégeait cette vérification
+  /// entre sa lecture et l'écriture qui suit (contrairement au rôle
+  /// chef/second, protégé par un index unique en base).
   Future<void> assignPatrouille({
     required String scoutId,
     required String? patrouilleId,
@@ -193,34 +209,51 @@ class ScoutRepository {
   }) async {
     final db = await _databaseHelper.database;
 
-    if (patrouilleId != null) {
-      final current = await findById(scoutId);
-      final alreadyInThisPatrouille = current?.patrouilleId == patrouilleId;
-      if (!alreadyInThisPatrouille) {
-        final currentCount = await countMembers(patrouilleId);
-        if (currentCount >= kMaxScoutsPerPatrouille) {
-          throw StateError(
-              'Cette patrouille a déjà atteint sa limite de $kMaxScoutsPerPatrouille membres.');
-        }
-      }
-    }
-
     try {
-      final count = await db.update(
-        'scouts',
-        {
-          'patrouille_id': patrouilleId,
-          'role_patrouille': patrouilleId == null ? 'membre' : role.name,
-        },
-        where: 'id = ?',
-        whereArgs: [scoutId],
-      );
-      if (count == 0) {
-        throw StateError('Scout introuvable (id: $scoutId).');
-      }
+      await db.transaction((txn) async {
+        if (patrouilleId != null) {
+          final currentRows = await txn.query(
+            'scouts',
+            columns: ['patrouille_id'],
+            where: 'id = ?',
+            whereArgs: [scoutId],
+            limit: 1,
+          );
+          final alreadyInThisPatrouille =
+              currentRows.isNotEmpty &&
+              currentRows.first['patrouille_id'] == patrouilleId;
+          if (!alreadyInThisPatrouille) {
+            final countResult = await txn.rawQuery(
+              'SELECT COUNT(*) AS count FROM scouts WHERE patrouille_id = ?',
+              [patrouilleId],
+            );
+            final currentCount = Sqflite.firstIntValue(countResult) ?? 0;
+            if (currentCount >= kMaxScoutsPerPatrouille) {
+              throw StateError(
+                'Cette patrouille a déjà atteint sa limite de $kMaxScoutsPerPatrouille membres.',
+              );
+            }
+          }
+        }
+
+        final count = await txn.update(
+          'scouts',
+          {
+            'patrouille_id': patrouilleId,
+            'role_patrouille': patrouilleId == null ? 'membre' : role.name,
+          },
+          where: 'id = ?',
+          whereArgs: [scoutId],
+        );
+        if (count == 0) {
+          throw StateError('Scout introuvable (id: $scoutId).');
+        }
+      });
     } on DatabaseException catch (error) {
       if (error.isUniqueConstraintError()) {
-        final label = role == RolePatrouille.chef ? 'chef de patrouille' : 'second';
+        final label = role == RolePatrouille.chef
+            ? 'chef de patrouille'
+            : 'second';
         throw StateError('Cette patrouille a déjà un $label.');
       }
       rethrow;

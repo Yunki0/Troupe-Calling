@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import '../models/models.dart';
 import '../repositories/patrouille_repository.dart';
@@ -77,7 +76,7 @@ class _PatrouilleScreenState extends State<PatrouilleScreen> {
               Wrap(
                 spacing: 8,
                 children: kPatrouilleColors.map((hex) {
-                  final color = Color(int.parse(hex.substring(1), radix: 16) + 0xFF000000);
+                  final color = patrouilleColorFromHex(hex);
                   final selected = selectedColor == hex;
                   return GestureDetector(
                     onTap: () => setDialogState(() => selectedColor = hex),
@@ -145,11 +144,6 @@ class _PatrouilleScreenState extends State<PatrouilleScreen> {
     if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
-  Color _colorOf(String? hex) {
-    if (hex == null) return AppColors.khaki;
-    return Color(int.parse(hex.substring(1), radix: 16) + 0xFF000000);
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_loading) {
@@ -167,7 +161,7 @@ class _PatrouilleScreenState extends State<PatrouilleScreen> {
               return Card(
                 margin: const EdgeInsets.only(bottom: 10),
                 child: ExpansionTile(
-                  leading: CircleAvatar(backgroundColor: _colorOf(p.couleur), radius: 10),
+                  leading: CircleAvatar(backgroundColor: patrouilleColorFromHex(p.couleur), radius: 10),
                   title: Text(p.nom, style: const TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text('${members.length} membre(s)'),
                   trailing: PopupMenuButton<String>(
@@ -208,11 +202,12 @@ class _PatrouilleScreenState extends State<PatrouilleScreen> {
   }
 
   Widget _scoutTile(Scout s) {
+    final avatarImage = avatarImageFor(s.photoPath);
     return ListTile(
       leading: CircleAvatar(
         backgroundColor: AppColors.mossLight,
-        backgroundImage: s.photoPath != null ? FileImage(File(s.photoPath!)) as ImageProvider : null,
-        child: s.photoPath == null ? Text(s.prenom.isNotEmpty ? s.prenom[0] : '?') : null,
+        backgroundImage: avatarImage,
+        child: avatarImage == null ? Text(s.prenom.isNotEmpty ? s.prenom[0] : '?') : null,
       ),
       title: Text(s.displayName),
       trailing: s.rolePatrouille == RolePatrouille.membre
@@ -225,6 +220,7 @@ class _PatrouilleScreenState extends State<PatrouilleScreen> {
             ),
       onTap: () async {
         await Navigator.push(context, MaterialPageRoute(builder: (_) => ScoutProfileScreen(scout: s)));
+        if (!context.mounted) return;
         _load();
       },
     );

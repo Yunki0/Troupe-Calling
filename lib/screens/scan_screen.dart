@@ -114,10 +114,9 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
     } catch (_) {
       if (mounted) {
         setState(() {
-          _cameraReady = true;
-          _cameraMessage = null;
+          _cameraReady = false;
+          _cameraMessage = 'Impossible d’activer la caméra.';
         });
-        if (restart) await _scannerController.start();
       }
     }
   }

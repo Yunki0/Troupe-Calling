@@ -50,7 +50,7 @@ class AttendanceRecord {
 enum ScoutStatus { actif, inactif }
 
 /// Rôle du jeune au sein de sa patrouille.
-enum RolePatrouille { membre, second, chef }
+enum RolePatrouille { chef, second, secretaire, tresorier, animateur, pieux, intendant, secouriste, membre }
 
 extension RolePatrouilleLabel on RolePatrouille {
   String get label {
@@ -58,7 +58,19 @@ extension RolePatrouilleLabel on RolePatrouille {
       case RolePatrouille.chef:
         return 'Chef de patrouille';
       case RolePatrouille.second:
-        return 'Second';
+        return 'Second de patrouille';
+      case RolePatrouille.secretaire:
+        return 'Sécrétaire';
+      case RolePatrouille.tresorier:
+        return 'Trésorier';
+      case RolePatrouille.animateur:
+        return 'Animateur';
+      case RolePatrouille.pieux:
+        return 'Chargé de la liturgie';
+      case RolePatrouille.intendant:
+        return 'Intendant';
+      case RolePatrouille.secouriste:
+        return 'Secouriste';
       case RolePatrouille.membre:
         return 'Membre';
     }
@@ -70,8 +82,20 @@ extension RolePatrouilleLabel on RolePatrouille {
         return 'CP';
       case RolePatrouille.second:
         return 'SP';
+      case RolePatrouille.secretaire:
+        return 'Sécr.';
+      case RolePatrouille.tresorier:
+        return 'Tréso.';
+      case RolePatrouille.animateur:
+        return 'Anim.';
+      case RolePatrouille.pieux:
+        return 'Prière';
+      case RolePatrouille.intendant:
+        return 'Inten.';
+      case RolePatrouille.secouriste:
+        return 'Sec.';
       case RolePatrouille.membre:
-        return '';
+        return 'MP';
     }
   }
 }

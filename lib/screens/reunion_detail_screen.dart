@@ -73,9 +73,11 @@ class _ReunionDetailScreenState extends State<ReunionDetailScreen> {
       final dir = await getTemporaryDirectory();
       final file = File('${dir.path}/reunion_${widget.reunion.id}.csv');
       await file.writeAsString(buffer.toString());
-      await Share.shareXFiles(
-        [XFile(file.path)],
-        text: 'Présences du ${widget.reunion.date}',
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path)],
+          text: 'Présences du ${widget.reunion.date}',
+        ),
       );
     } catch (_) {
       _message('Impossible d’exporter la réunion.');

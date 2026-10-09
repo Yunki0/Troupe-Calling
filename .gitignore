@@ -46,3 +46,7 @@ app.*.map.json
 
 *.zip
 tree_lib.txt
+*.jks
+key.properties
+/android/build/
+/log.txt

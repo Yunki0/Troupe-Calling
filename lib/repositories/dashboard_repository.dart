@@ -35,6 +35,7 @@ class DashboardData {
   final int totalInactifs;
   final int totalPatrouilles;
   final int sansPatrouille;
+  final Reunion? reunionOuverte;
   final double? tauxDerniereReunion;
   final double tauxMoyenRecent;
   final int reunionsConsiderees;
@@ -47,6 +48,7 @@ class DashboardData {
     required this.totalInactifs,
     required this.totalPatrouilles,
     required this.sansPatrouille,
+    required this.reunionOuverte,
     required this.tauxDerniereReunion,
     required this.tauxMoyenRecent,
     required this.reunionsConsiderees,
@@ -60,6 +62,7 @@ class DashboardData {
     totalInactifs: 0,
     totalPatrouilles: 0,
     sansPatrouille: 0,
+    reunionOuverte: null,
     tauxDerniereReunion: null,
     tauxMoyenRecent: 0,
     reunionsConsiderees: 0,
@@ -88,10 +91,13 @@ class DashboardRepository {
   Future<DashboardData> load({
     int recentReunionsCount = 6,
     int birthdayWindowDays = 30,
+    DateTime? now,
   }) async {
     final scouts = await _scoutRepo.getAll();
     final patrouilles = await _patrouilleRepo.getAll();
     final allReunions = await _reunionRepo.getAll(); // triées date DESC
+    final reunionsOuvertes =
+        allReunions.where((r) => r.statut == ReunionStatus.ouverte);
     final terminees = allReunions.where((r) => r.statut == ReunionStatus.terminee).toList();
     final recent = terminees.take(recentReunionsCount).toList();
 
@@ -151,13 +157,26 @@ class DashboardRepository {
       ..sort((a, b) => (presenceCountByScout[b.id] ?? 0).compareTo(presenceCountByScout[a.id] ?? 0));
     final meilleureAssiduite = recent.isEmpty ? <Scout>[] : ranked.take(5).toList();
 
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
+    final referenceDate = now ?? DateTime.now();
+    final today =
+        DateTime(referenceDate.year, referenceDate.month, referenceDate.day);
     final upcoming = <UpcomingBirthday>[];
     for (final s in actifs) {
-      if (s.dateNaissance == null) continue;
-      final birth = DateTime.tryParse(s.dateNaissance!);
-      if (birth == null) continue;
+      final birthDate = s.dateNaissance;
+      if (birthDate == null ||
+          !RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(birthDate)) {
+        continue;
+      }
+      final birth = DateTime.tryParse(birthDate);
+      if (birth == null ||
+          birth.year.toString().padLeft(4, '0') !=
+              birthDate.substring(0, 4) ||
+          birth.month.toString().padLeft(2, '0') !=
+              birthDate.substring(5, 7) ||
+          birth.day.toString().padLeft(2, '0') !=
+              birthDate.substring(8, 10)) {
+        continue;
+      }
       var next = DateTime(today.year, birth.month, birth.day);
       if (next.isBefore(today)) {
         next = DateTime(today.year + 1, birth.month, birth.day);
@@ -179,6 +198,7 @@ class DashboardRepository {
       totalInactifs: inactifs.length,
       totalPatrouilles: patrouilles.length,
       sansPatrouille: sansPatrouille,
+      reunionOuverte: reunionsOuvertes.isEmpty ? null : reunionsOuvertes.first,
       tauxDerniereReunion: tauxDerniere,
       tauxMoyenRecent: tauxMoyen,
       reunionsConsiderees: recent.length,

@@ -92,4 +92,52 @@ void main() {
 
     expect(result.single.values.single, 1);
   });
+
+  test('migrates a version 4 database to the patrol schema', () async {
+    final path = '${temporaryDirectory.path}/test.db';
+    final legacyDatabase = await databaseFactoryFfi.openDatabase(
+      path,
+      options: OpenDatabaseOptions(
+        version: 4,
+        onCreate: (db, _) async {
+          await db.execute('''
+            CREATE TABLE scouts (
+              id TEXT PRIMARY KEY,
+              nom TEXT NOT NULL DEFAULT '',
+              prenom TEXT NOT NULL,
+              qr_token TEXT NOT NULL UNIQUE,
+              statut TEXT NOT NULL DEFAULT 'actif',
+              created_at INTEGER NOT NULL
+            )
+          ''');
+        },
+      ),
+    );
+    await legacyDatabase.close();
+
+    final db = await databaseHelper.database;
+    final columns = await db.rawQuery('PRAGMA table_info(scouts)');
+    final columnNames = columns.map((column) => column['name']).toSet();
+    expect(columnNames, contains('patrouille_id'));
+    expect(columnNames, contains('role_patrouille'));
+
+    final scoutRepository = ScoutRepository(databaseHelper: databaseHelper);
+    await scoutRepository.create(const Scout(
+      id: 'scout-1',
+      nom: 'Dupont',
+      prenom: 'Jean',
+      qrToken: 'scout_token_1',
+      statut: ScoutStatus.actif,
+      createdAt: 1,
+    ));
+    await db.insert('patrouilles', {
+      'id': 'patrouille-1',
+      'nom': 'Aigles',
+      'created_at': 1,
+    });
+    await scoutRepository.assignPatrouille(
+      scoutId: 'scout-1',
+      patrouilleId: 'patrouille-1',
+    );
+  });
 }

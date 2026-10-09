@@ -20,7 +20,8 @@ class ScoutProfileScreen extends StatefulWidget {
   State<ScoutProfileScreen> createState() => _ScoutProfileScreenState();
 }
 
-class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTickerProviderStateMixin {
+class _ScoutProfileScreenState extends State<ScoutProfileScreen>
+    with SingleTickerProviderStateMixin {
   final _scoutRepo = ScoutRepository();
   final _patrouilleRepo = PatrouilleRepository();
   final _picker = ImagePicker();
@@ -63,7 +64,9 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
     _adresseCtrl.text = _scout.adresse ?? '';
     _parentNomCtrl.text = _scout.parentNom ?? '';
     _parentContactCtrl.text = _scout.parentContact ?? '';
-    _dateNaissance = _scout.dateNaissance != null ? DateTime.tryParse(_scout.dateNaissance!) : null;
+    _dateNaissance = _scout.dateNaissance != null
+        ? DateTime.tryParse(_scout.dateNaissance!)
+        : null;
     _selectedPatrouilleId = _scout.patrouilleId;
     _selectedRole = _scout.rolePatrouille;
   }
@@ -87,18 +90,31 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
 
   Future<void> _pickPhoto(ImageSource source) async {
     try {
-      final picked = await _picker.pickImage(source: source, imageQuality: 85, maxWidth: 900);
+      final picked = await _picker.pickImage(
+        source: source,
+        imageQuality: 85,
+        maxWidth: 900,
+      );
       if (picked == null) return;
       final dir = await getApplicationDocumentsDirectory();
       final photosDir = Directory('${dir.path}/photos');
       if (!await photosDir.exists()) await photosDir.create(recursive: true);
       final destPath = '${photosDir.path}/${_scout.id}.jpg';
+      final destFile = File(destPath);
       await File(picked.path).copy(destPath);
+      // Le chemin ne change pas d'une photo à l'autre (toujours
+      // "<id>.jpg"), mais le cache d'images de Flutter indexe FileImage par
+      // chemin, pas par contenu : sans cette purge, l'ancienne photo reste
+      // affichée (ici et partout ailleurs dans l'app — roster, dashboard,
+      // écran patrouilles) tant que le cache n'a pas été vidé.
+      await FileImage(destFile).evict();
       await _scoutRepo.updatePhoto(_scout.id, destPath);
       if (!mounted) return;
       setState(() => _scout = _scout.copyWith(photoPath: destPath));
     } catch (_) {
-      _message("Impossible de mettre à jour la photo. Vérifie les autorisations caméra/galerie de l'app.");
+      _message(
+        "Impossible de mettre à jour la photo. Vérifie les autorisations caméra/galerie de l'app.",
+      );
     }
   }
 
@@ -106,24 +122,26 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
     showModalBottomSheet(
       context: context,
       builder: (ctx) => SafeArea(
-        child: Wrap(children: [
-          ListTile(
-            leading: const Icon(Icons.photo_camera, color: AppColors.forest),
-            title: const Text('Prendre une photo'),
-            onTap: () {
-              Navigator.pop(ctx);
-              _pickPhoto(ImageSource.camera);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.photo_library, color: AppColors.forest),
-            title: const Text('Choisir dans la galerie'),
-            onTap: () {
-              Navigator.pop(ctx);
-              _pickPhoto(ImageSource.gallery);
-            },
-          ),
-        ]),
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera, color: AppColors.forest),
+              title: const Text('Prendre une photo'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _pickPhoto(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library, color: AppColors.forest),
+              title: const Text('Choisir dans la galerie'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _pickPhoto(ImageSource.gallery);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -161,11 +179,21 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
       );
       await _scoutRepo.updateFicheTechnique(
         id: _scout.id,
-        dateNaissance: _dateNaissance != null ? DateFormat('yyyy-MM-dd').format(_dateNaissance!) : null,
-        lieuNaissance: _lieuNaissanceCtrl.text.trim().isEmpty ? null : _lieuNaissanceCtrl.text.trim(),
-        adresse: _adresseCtrl.text.trim().isEmpty ? null : _adresseCtrl.text.trim(),
-        parentNom: _parentNomCtrl.text.trim().isEmpty ? null : _parentNomCtrl.text.trim(),
-        parentContact: _parentContactCtrl.text.trim().isEmpty ? null : _parentContactCtrl.text.trim(),
+        dateNaissance: _dateNaissance != null
+            ? DateFormat('yyyy-MM-dd').format(_dateNaissance!)
+            : null,
+        lieuNaissance: _lieuNaissanceCtrl.text.trim().isEmpty
+            ? null
+            : _lieuNaissanceCtrl.text.trim(),
+        adresse: _adresseCtrl.text.trim().isEmpty
+            ? null
+            : _adresseCtrl.text.trim(),
+        parentNom: _parentNomCtrl.text.trim().isEmpty
+            ? null
+            : _parentNomCtrl.text.trim(),
+        parentContact: _parentContactCtrl.text.trim().isEmpty
+            ? null
+            : _parentContactCtrl.text.trim(),
       );
 
       try {
@@ -190,9 +218,15 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
       }
 
       if (mounted) {
-        _message(patrouilleError == null
-            ? 'Fiche enregistrée.'
-            : 'Fiche enregistrée. Patrouille non modifiée : $patrouilleError');
+        if (patrouilleError != null) {
+          _message(
+            'Fiche enregistrée, mais la patrouille n’a pas été modifiée : '
+            '$patrouilleError',
+          );
+          return;
+        }
+
+        _message('Fiche enregistrée.');
       }
     } catch (_) {
       _message("Impossible d'enregistrer la fiche. Réessaie.");
@@ -204,16 +238,20 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
   Future<void> _shareBadge() async {
     setState(() => _sharing = true);
     try {
-      final boundary = _repaintKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+      final boundary =
+          _repaintKey.currentContext!.findRenderObject()
+              as RenderRepaintBoundary;
       final image = await boundary.toImage(pixelRatio: 3.0);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final bytes = byteData!.buffer.asUint8List();
       final dir = await getTemporaryDirectory();
       final file = File('${dir.path}/badge_${_scout.id}.png');
       await file.writeAsBytes(bytes);
-      await Share.shareXFiles(
-        [XFile(file.path)],
-        text: 'Badge scout — ${_scout.displayName}',
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path)],
+          text: 'Badge scout — ${_scout.displayName}',
+        ),
       );
     } catch (_) {
       _message('Impossible de préparer le badge à partager. Réessaie.');
@@ -237,8 +275,13 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
         title: Text(_scout.displayName),
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: AppColors.ember,
-          tabs: const [Tab(text: 'Fiche technique'), Tab(text: 'Badge QR')],
+          indicatorColor: AppColors.coral,
+          unselectedLabelColor: Colors.white,
+          labelColor: Colors.white,
+          tabs: const [
+            Tab(text: 'Fiche technique'),
+            Tab(text: 'Badge QR'),
+          ],
         ),
       ),
       body: TabBarView(
@@ -257,22 +300,41 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
             onTap: _showPhotoSourceSheet,
             child: Stack(
               children: [
-                CircleAvatar(
-                  radius: 48,
-                  backgroundColor: AppColors.mossLight,
-                  backgroundImage: _scout.photoPath != null ? FileImage(File(_scout.photoPath!)) : null,
-                  child: _scout.photoPath == null
-                      ? Text(_scout.prenom.isNotEmpty ? _scout.prenom[0].toUpperCase() : '?',
-                          style: const TextStyle(fontSize: 32, color: AppColors.forest))
-                      : null,
+                Builder(
+                  builder: (context) {
+                    final avatarImage = avatarImageFor(_scout.photoPath);
+                    return CircleAvatar(
+                      radius: 48,
+                      backgroundColor: AppColors.mossLight,
+                      backgroundImage: avatarImage,
+                      child: avatarImage == null
+                          ? Text(
+                              _scout.prenom.isNotEmpty
+                                  ? _scout.prenom[0].toUpperCase()
+                                  : '?',
+                              style: const TextStyle(
+                                fontSize: 32,
+                                color: AppColors.forest,
+                              ),
+                            )
+                          : null,
+                    );
+                  },
                 ),
                 Positioned(
                   bottom: 0,
                   right: 0,
                   child: Container(
                     padding: const EdgeInsets.all(6),
-                    decoration: const BoxDecoration(color: AppColors.ember, shape: BoxShape.circle),
-                    child: const Icon(Icons.camera_alt, size: 16, color: Colors.white),
+                    decoration: const BoxDecoration(
+                      color: AppColors.ember,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.camera_alt,
+                      size: 16,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ],
@@ -280,27 +342,59 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
           ),
         ),
         const SizedBox(height: 20),
-        Row(children: [
-          Expanded(child: TextField(controller: _prenomCtrl, decoration: const InputDecoration(labelText: 'Prénom'))),
-          const SizedBox(width: 10),
-          Expanded(child: TextField(controller: _nomCtrl, decoration: const InputDecoration(labelText: 'Nom'))),
-        ]),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _prenomCtrl,
+                decoration: const InputDecoration(labelText: 'Prénom'),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: TextField(
+                controller: _nomCtrl,
+                decoration: const InputDecoration(labelText: 'Nom'),
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 12),
         InkWell(
           onTap: _pickDateNaissance,
           child: InputDecorator(
             decoration: const InputDecoration(labelText: 'Date de naissance'),
-            child: Text(_dateNaissance != null ? DateFormat('dd/MM/yyyy').format(_dateNaissance!) : 'Non renseignée'),
+            child: Text(
+              _dateNaissance != null
+                  ? DateFormat('dd/MM/yyyy').format(_dateNaissance!)
+                  : 'Non renseignée',
+            ),
           ),
         ),
         const SizedBox(height: 12),
-        TextField(controller: _lieuNaissanceCtrl, decoration: const InputDecoration(labelText: 'Lieu de naissance')),
+        TextField(
+          controller: _lieuNaissanceCtrl,
+          decoration: const InputDecoration(labelText: 'Lieu de naissance'),
+        ),
         const SizedBox(height: 12),
-        TextField(controller: _adresseCtrl, decoration: const InputDecoration(labelText: "Lieu d'habitation"), maxLines: 2),
+        TextField(
+          controller: _adresseCtrl,
+          decoration: const InputDecoration(labelText: "Lieu d'habitation"),
+          maxLines: 2,
+        ),
         const SizedBox(height: 20),
-        const Text('Contact parent', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.forest)),
+        const Text(
+          'Contact parent',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppColors.forest,
+          ),
+        ),
         const SizedBox(height: 8),
-        TextField(controller: _parentNomCtrl, decoration: const InputDecoration(labelText: 'Nom du parent')),
+        TextField(
+          controller: _parentNomCtrl,
+          decoration: const InputDecoration(labelText: 'Nom du parent'),
+        ),
         const SizedBox(height: 12),
         TextField(
           controller: _parentContactCtrl,
@@ -308,14 +402,22 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
           keyboardType: TextInputType.phone,
         ),
         const SizedBox(height: 20),
-        const Text('Patrouille', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.forest)),
+        const Text(
+          'Patrouille',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppColors.forest,
+          ),
+        ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String?>(
           initialValue: _selectedPatrouilleId,
           decoration: const InputDecoration(labelText: 'Patrouille'),
           items: [
             const DropdownMenuItem<String?>(value: null, child: Text('Aucune')),
-            ..._patrouilles.map((p) => DropdownMenuItem<String?>(value: p.id, child: Text(p.nom))),
+            ..._patrouilles.map(
+              (p) => DropdownMenuItem<String?>(value: p.id, child: Text(p.nom)),
+            ),
           ],
           onChanged: _onPatrouilleChanged,
         ),
@@ -327,7 +429,8 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
             items: RolePatrouille.values
                 .map((r) => DropdownMenuItem(value: r, child: Text(r.label)))
                 .toList(),
-            onChanged: (v) => setState(() => _selectedRole = v ?? RolePatrouille.membre),
+            onChanged: (v) =>
+                setState(() => _selectedRole = v ?? RolePatrouille.membre),
           ),
         const SizedBox(height: 24),
         SizedBox(
@@ -335,7 +438,14 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
           child: ElevatedButton.icon(
             onPressed: _saving ? null : _save,
             icon: _saving
-                ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
                 : const Icon(Icons.save),
             label: Text(_saving ? 'Enregistrement...' : 'Enregistrer'),
           ),
@@ -352,10 +462,7 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
     return null;
   }
 
-  Color _patrouilleColor(Patrouille? p) {
-    if (p?.couleur == null) return AppColors.khaki;
-    return Color(int.parse(p!.couleur!.substring(1), radix: 16) + 0xFF000000);
-  }
+  Color _patrouilleColor(Patrouille? p) => patrouilleColorFromHex(p?.couleur);
 
   Widget _badgeTab() {
     final patrouille = _currentPatrouille;
@@ -374,13 +481,20 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
                 gradient: AppGradients.header,
                 borderRadius: BorderRadius.circular(26),
                 boxShadow: AppShadows.soft,
-                border: Border.all(color: accentColor.withValues(alpha: 0.5), width: 1.4),
+                border: Border.all(
+                  color: accentColor.withValues(alpha: 0.5),
+                  width: 1.4,
+                ),
               ),
               child: Column(
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.emoji_nature, color: AppColors.khakiLight, size: 15),
+                      const Icon(
+                        Icons.emoji_nature,
+                        color: AppColors.khakiLight,
+                        size: 15,
+                      ),
                       const SizedBox(width: 6),
                       const Text(
                         'CARTE SCOUT',
@@ -394,43 +508,77 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
                       const Spacer(),
                       if (patrouille != null)
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
                           decoration: BoxDecoration(
                             color: accentColor.withValues(alpha: 0.22),
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: accentColor.withValues(alpha: 0.6)),
+                            border: Border.all(
+                              color: accentColor.withValues(alpha: 0.6),
+                            ),
                           ),
                           child: Text(
                             patrouille.nom,
-                            style: TextStyle(color: accentColor == AppColors.khaki ? AppColors.khakiLight : Colors.white, fontSize: 10.5, fontWeight: FontWeight.w700),
+                            style: TextStyle(
+                              color: accentColor == AppColors.khaki
+                                  ? AppColors.khakiLight
+                                  : Colors.white,
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
                     ],
                   ),
                   const SizedBox(height: 18),
-                  CircleAvatar(
-                    radius: 36,
-                    backgroundColor: AppColors.forestDark,
-                    child: CircleAvatar(
-                      radius: 33,
-                      backgroundColor: AppColors.mossLight,
-                      backgroundImage: _scout.photoPath != null ? FileImage(File(_scout.photoPath!)) : null,
-                      child: _scout.photoPath == null
-                          ? Text(_scout.prenom.isNotEmpty ? _scout.prenom[0].toUpperCase() : '?',
-                              style: const TextStyle(fontSize: 26, color: AppColors.forest, fontWeight: FontWeight.bold))
-                          : null,
-                    ),
+                  Builder(
+                    builder: (context) {
+                      final avatarImage = avatarImageFor(_scout.photoPath);
+                      return CircleAvatar(
+                        radius: 36,
+                        backgroundColor: AppColors.forestDark,
+                        child: CircleAvatar(
+                          radius: 33,
+                          backgroundColor: AppColors.mossLight,
+                          backgroundImage: avatarImage,
+                          child: avatarImage == null
+                              ? Text(
+                                  _scout.prenom.isNotEmpty
+                                      ? _scout.prenom[0].toUpperCase()
+                                      : '?',
+                                  style: const TextStyle(
+                                    fontSize: 26,
+                                    color: AppColors.forest,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              : null,
+                        ),
+                      );
+                    },
                   ),
                   const SizedBox(height: 12),
                   Text(
                     _scout.displayName,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   if (_scout.rolePatrouille != RolePatrouille.membre) ...[
                     const SizedBox(height: 2),
-                    Text(_scout.rolePatrouille.label,
-                        style: const TextStyle(color: AppColors.khakiLight, fontSize: 12, fontWeight: FontWeight.w600)),
+                    Text(
+                      _scout.rolePatrouille.label,
+                      style: const TextStyle(
+                        color: AppColors.khakiLight,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ],
                   const SizedBox(height: 20),
                   Container(
@@ -444,16 +592,17 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
                       data: _scout.qrToken,
                       size: 168,
                       gapless: true,
-                      eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: AppColors.forest),
-                      dataModuleStyle:
-                          const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: AppColors.ink),
+                      eyeStyle: const QrEyeStyle(
+                        eyeShape: QrEyeShape.square,
+                        color: AppColors.forest,
+                      ),
+                      dataModuleStyle: const QrDataModuleStyle(
+                        dataModuleShape: QrDataModuleShape.square,
+                        color: AppColors.ink,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Text(
-                    _scout.qrToken,
-                    style: const TextStyle(color: AppColors.khakiLight, fontSize: 9.5, letterSpacing: 0.5, fontFamily: 'monospace'),
-                  ),
                 ],
               ),
             ),
@@ -468,7 +617,14 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen> with SingleTick
           ElevatedButton.icon(
             onPressed: _sharing ? null : _shareBadge,
             icon: _sharing
-                ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
                 : const Icon(Icons.share),
             label: Text(_sharing ? 'Préparation...' : 'Partager / imprimer'),
           ),

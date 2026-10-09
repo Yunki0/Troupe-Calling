@@ -3,6 +3,8 @@ import 'package:sqflite/sqflite.dart';
 import '../models/models.dart';
 
 class DatabaseHelper {
+  static const int schemaVersion = 5;
+
   final DatabaseFactory _databaseFactory;
   final String? _databasePath;
 
@@ -26,6 +28,51 @@ class DatabaseHelper {
     await db?.close();
   }
 
+  Future<void> validateDatabaseFile(String path) async {
+    final candidate = await _databaseFactory.openDatabase(path);
+    try {
+      final integrity = await candidate.rawQuery('PRAGMA integrity_check');
+      if (integrity.length != 1 || integrity.single.values.single != 'ok') {
+        throw StateError('La sauvegarde SQLite est corrompue.');
+      }
+
+      final versionRows = await candidate.rawQuery('PRAGMA user_version');
+      final version = versionRows.single.values.single as int;
+      if (version != schemaVersion) {
+        throw StateError(
+            'La version de la base de sauvegarde est incompatible.');
+      }
+
+      final tables = await candidate.rawQuery(
+        "SELECT name FROM sqlite_master WHERE type = 'table'",
+      );
+      final tableNames = tables.map((row) => row['name'] as String).toSet();
+      const requiredTables = {
+        'scouts',
+        'reunions',
+        'presences',
+        'patrouilles',
+        'settings',
+      };
+      if (!tableNames.containsAll(requiredTables)) {
+        throw StateError(
+            'La sauvegarde SQLite ne contient pas les tables requises.');
+      }
+
+      final foreignKeyViolations =
+          await candidate.rawQuery('PRAGMA foreign_key_check');
+      if (foreignKeyViolations.isNotEmpty) {
+        throw StateError(
+            'La sauvegarde SQLite contient des références invalides.');
+      }
+    } on DatabaseException catch (error) {
+      throw StateError(
+          'Le fichier de sauvegarde SQLite est illisible : $error');
+    } finally {
+      await candidate.close();
+    }
+  }
+
   Database? _db;
   Future<Database>? _dbFuture;
 
@@ -35,13 +82,23 @@ class DatabaseHelper {
     return _db!;
   }
 
+  /// Chemin du fichier SQLite sur disque. Utilisé par [BackupService] pour
+  /// inclure la base telle quelle dans une archive de sauvegarde/restauration.
+  Future<String> get databasePath async => _resolveDbPath();
+
+  Future<String> _resolveDbPath() async {
+    final overridePath = _databasePath;
+    if (overridePath != null) return overridePath;
+    final dbDir = await _databaseFactory.getDatabasesPath();
+    return join(dbDir, 'appel_scout.db');
+  }
+
   Future<Database> _initDb() async {
-    final dbPath = _databasePath ?? await _databaseFactory.getDatabasesPath();
-    final path = _databasePath ?? join(dbPath, 'appel_scout.db');
+    final path = await _resolveDbPath();
     return _databaseFactory.openDatabase(
       path,
       options: OpenDatabaseOptions(
-        version: 5,
+        version: schemaVersion,
         onConfigure: (db) => db.execute('PRAGMA foreign_keys = ON'),
         onCreate: (db, version) async {
           await db.execute('''
@@ -112,8 +169,8 @@ class DatabaseHelper {
           ''');
           }
           if (oldVersion < 5) {
-            await _createPatrouilleTables(db);
             await _addScoutV2Columns(db);
+            await _createPatrouilleTables(db);
           }
         },
       ),
@@ -138,7 +195,7 @@ class DatabaseHelper {
         photo_path TEXT,
         patrouille_id TEXT REFERENCES patrouilles(id) ON DELETE SET NULL,
         role_patrouille TEXT NOT NULL DEFAULT 'membre'
-          CHECK (role_patrouille IN ('membre', 'second', 'chef'))
+          CHECK (role_patrouille IN ('chef', 'second', 'secretaire', 'tresorier', 'animateur', 'pieux', 'intendant', 'secouriste', 'membre'))
       )
     ''');
     await db.execute('''
@@ -217,7 +274,7 @@ class DatabaseHelper {
       'photo_path': 'TEXT',
       'patrouille_id': 'TEXT REFERENCES patrouilles(id) ON DELETE SET NULL',
       'role_patrouille':
-          "TEXT NOT NULL DEFAULT 'membre' CHECK (role_patrouille IN ('membre','second','chef'))",
+          "TEXT NOT NULL DEFAULT 'membre' CHECK (role_patrouille IN ('chef', 'second', 'secretaire', 'tresorier', 'animateur', 'pieux', 'intendant', 'secouriste', 'membre'))",
     };
 
     for (final entry in columns.entries) {
