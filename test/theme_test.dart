@@ -42,6 +42,34 @@ void main() {
       greaterThan(_blueChannel(AppColors.lagoonSoft)),
     );
   });
+
+  test('dark theme uses dark surfaces and a readable branch green', () {
+    final theme = buildAppDarkTheme();
+
+    expect(theme.brightness, Brightness.dark);
+    expect(theme.scaffoldBackgroundColor, AppColors.darkCanvas);
+    expect(theme.colorScheme.primary, AppColors.darkPrimary);
+    expect(theme.colorScheme.surface, AppColors.darkCanvas);
+    expect(
+      _contrastRatio(AppColors.darkPrimary, AppColors.darkCanvas),
+      greaterThanOrEqualTo(4.5),
+    );
+    expect(
+      _contrastRatio(AppColors.darkText, AppColors.darkSurface),
+      greaterThanOrEqualTo(4.5),
+    );
+    expect(
+      _contrastRatio(AppPalette.dark.textMuted, AppPalette.dark.surfaceRaised),
+      greaterThanOrEqualTo(4.5),
+    );
+    expect(
+      _contrastRatio(
+        AppPalette.dark.onSecondarySoft,
+        AppPalette.dark.secondarySoft,
+      ),
+      greaterThanOrEqualTo(4.5),
+    );
+  });
 }
 
 int _greenChannel(Color color) => (color.toARGB32() >> 8) & 0xFF;

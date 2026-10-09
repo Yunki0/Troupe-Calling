@@ -8,10 +8,14 @@ import 'screens/history_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'db/database_helper.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('fr_FR', null);
   runApp(const AppelScoutApp());
+}
+
+Future<String?> _initializeApp() async {
+  await initializeDateFormatting('fr_FR', null);
+  return DatabaseHelper.instance.getSetting('troopName');
 }
 
 class AppelScoutApp extends StatelessWidget {
@@ -20,23 +24,32 @@ class AppelScoutApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Troupe Manager',
+      title: 'Appel Scout',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
-      home: const SplashScreen(next: RootShell()),
+      darkTheme: buildAppDarkTheme(),
+      themeMode: ThemeMode.system,
+      home: SplashScreen(
+        initialize: _initializeApp,
+        nextBuilder: (context, troopName) =>
+            RootShell(initialTroopName: troopName),
+      ),
     );
   }
 }
 
 class RootShell extends StatefulWidget {
-  const RootShell({super.key});
+  const RootShell({super.key, required this.initialTroopName});
+
+  final String? initialTroopName;
+
   @override
   State<RootShell> createState() => _RootShellState();
 }
 
 class _RootShellState extends State<RootShell> {
   int _index = 0;
-  String troopName = 'Troupe Manager';
+  late String troopName;
 
   // Bump this to force child screens to reload roster/attendance after changes.
   int refreshTick = 0;
@@ -44,14 +57,10 @@ class _RootShellState extends State<RootShell> {
   @override
   void initState() {
     super.initState();
-    _loadTroopName();
-  }
-
-  Future<void> _loadTroopName() async {
-    final name = await DatabaseHelper.instance.getSetting('troopName');
-    if (name != null && name.isNotEmpty && mounted) {
-      setState(() => troopName = name);
-    }
+    final initialName = widget.initialTroopName?.trim();
+    troopName = initialName == null || initialName.isEmpty
+        ? 'Ma troupe'
+        : initialName;
   }
 
   void triggerRefresh() {

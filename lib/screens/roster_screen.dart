@@ -15,10 +15,7 @@ import 'scout_profile_screen.dart';
 class RosterScreen extends StatefulWidget {
   final VoidCallback onRosterChanged;
 
-  const RosterScreen({
-    super.key,
-    required this.onRosterChanged,
-  });
+  const RosterScreen({super.key, required this.onRosterChanged});
 
   @override
   State<RosterScreen> createState() => _RosterScreenState();
@@ -391,7 +388,7 @@ class _RosterScreenState extends State<RosterScreen> {
               child: Text(
                 'Les jeunes',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: AppColors.forest,
+                  color: AppPalette.of(context).primary,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.3,
                 ),
@@ -400,7 +397,7 @@ class _RosterScreenState extends State<RosterScreen> {
             Text(
               '${scouts.length} ${scouts.length == 1 ? 'membre' : 'membres'}',
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: AppColors.ink.withValues(alpha: 0.65),
+                color: AppPalette.of(context).textMuted,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -456,17 +453,17 @@ class _RosterScreenState extends State<RosterScreen> {
       padding: const EdgeInsets.fromLTRB(24, 40, 24, 32),
       child: Column(
         children: [
-          const Icon(
+          Icon(
             Icons.cloud_off_outlined,
             size: 42,
-            color: AppColors.ember,
+            color: AppPalette.of(context).accent,
           ),
           const SizedBox(height: 14),
           Text(
             'Le roster n’a pas pu être chargé.',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: AppColors.forest,
+              color: AppPalette.of(context).primary,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -475,7 +472,7 @@ class _RosterScreenState extends State<RosterScreen> {
             'Tes données locales ne sont pas modifiées. Réessaie dans un instant.',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.ink.withValues(alpha: 0.7),
+              color: AppPalette.of(context).textMuted,
             ),
           ),
           const SizedBox(height: 16),
@@ -500,7 +497,7 @@ class _RosterScreenState extends State<RosterScreen> {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 20, 16, 18),
       decoration: BoxDecoration(
-        gradient: AppGradients.header,
+        gradient: AppGradients.headerFor(context),
         borderRadius: BorderRadius.circular(24),
         boxShadow: AppShadows.card,
       ),
@@ -520,8 +517,8 @@ class _RosterScreenState extends State<RosterScreen> {
                           : troopName.toUpperCase(),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.khakiLight,
+                      style: TextStyle(
+                        color: AppPalette.of(context).onBrand,
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.2,
@@ -547,8 +544,8 @@ class _RosterScreenState extends State<RosterScreen> {
                 icon: const Icon(Icons.person_add_alt_1, size: 18),
                 label: const Text('Ajouter'),
                 style: FilledButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: AppColors.forest,
+                  backgroundColor: AppPalette.of(context).secondarySoft,
+                  foregroundColor: AppPalette.of(context).onSecondarySoft,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 12,
@@ -578,7 +575,7 @@ class _RosterScreenState extends State<RosterScreen> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 17, color: AppColors.khakiLight),
+        Icon(icon, size: 17, color: AppPalette.of(context).secondarySoft),
         const SizedBox(width: 6),
         Text(
           label,
@@ -633,9 +630,9 @@ class _RosterScreenState extends State<RosterScreen> {
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.khakiLight),
+          border: Border.all(color: AppPalette.of(context).outline),
         ),
-        child: const Icon(Icons.more_horiz, color: AppColors.forest),
+        child: Icon(Icons.more_horiz, color: AppPalette.of(context).primary),
       ),
     );
   }
@@ -649,13 +646,17 @@ class _RosterScreenState extends State<RosterScreen> {
       onSelected: (_) => setState(() => _filter = filter),
       avatar: selected ? const Icon(Icons.check, size: 16) : null,
       labelStyle: TextStyle(
-        color: selected ? Colors.white : AppColors.ink,
+        color: selected
+            ? Theme.of(context).colorScheme.onPrimary
+            : AppPalette.of(context).text,
         fontWeight: FontWeight.w600,
       ),
-      selectedColor: AppColors.forest,
+      selectedColor: AppPalette.of(context).primary,
       backgroundColor: Theme.of(context).colorScheme.surface,
       side: BorderSide(
-        color: selected ? AppColors.forest : AppColors.khakiLight,
+        color: selected
+            ? AppPalette.of(context).primary
+            : AppPalette.of(context).secondary,
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
     );
@@ -675,13 +676,13 @@ class _RosterScreenState extends State<RosterScreen> {
           Container(
             width: 72,
             height: 72,
-            decoration: const BoxDecoration(
-              color: AppColors.mossLight,
+            decoration: BoxDecoration(
+              color: AppPalette.of(context).successSoft,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.groups_2_outlined,
-              color: AppColors.forest,
+              color: AppPalette.of(context).primary,
               size: 34,
             ),
           ),
@@ -691,7 +692,7 @@ class _RosterScreenState extends State<RosterScreen> {
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w700,
-              color: AppColors.forest,
+              color: AppPalette.of(context).primary,
             ),
           ),
           const SizedBox(height: 6),
@@ -699,7 +700,7 @@ class _RosterScreenState extends State<RosterScreen> {
             message,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.ink.withValues(alpha: 0.7),
+              color: AppPalette.of(context).textMuted,
             ),
           ),
           const SizedBox(height: 16),
@@ -741,16 +742,16 @@ class _RosterScreenState extends State<RosterScreen> {
         leading: CircleAvatar(
           radius: 25,
           backgroundColor: active
-              ? AppColors.mossLight
-              : AppColors.parchmentDeep,
+              ? AppPalette.of(context).successSoft
+              : AppPalette.of(context).surfaceRaised,
           backgroundImage: avatarImage,
           child: avatarImage == null
               ? Text(
                   scout.prenom.isNotEmpty
                       ? scout.prenom.characters.first.toUpperCase()
                       : '?',
-                  style: const TextStyle(
-                    color: AppColors.forest,
+                  style: TextStyle(
+                    color: AppPalette.of(context).primary,
                     fontWeight: FontWeight.w700,
                   ),
                 )
@@ -814,12 +815,14 @@ class _RosterScreenState extends State<RosterScreen> {
 
   Widget _statusBadge(bool active) {
     final color = active
-        ? AppColors.moss
-        : AppColors.ink.withValues(alpha: 0.6);
+        ? AppPalette.of(context).success
+        : AppPalette.of(context).textMuted;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: active ? AppColors.mossLight : AppColors.parchmentDeep,
+        color: active
+            ? AppPalette.of(context).successSoft
+            : AppPalette.of(context).surfaceRaised,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(

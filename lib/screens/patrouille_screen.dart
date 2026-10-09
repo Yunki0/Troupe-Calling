@@ -183,7 +183,10 @@ class _PatrouilleScreenState extends State<PatrouilleScreen> {
             if (_sansPatrouille.isNotEmpty) ...[
               const SizedBox(height: 4),
               Text('Sans patrouille (${_sansPatrouille.length})',
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black54)),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppPalette.of(context).textMuted,
+                  )),
               Card(
                 margin: const EdgeInsets.only(top: 6),
                 child: Column(children: _sansPatrouille.map((s) => _scoutTile(s)).toList()),
@@ -196,7 +199,7 @@ class _PatrouilleScreenState extends State<PatrouilleScreen> {
         onPressed: () => _createOrEditPatrouille(),
         icon: const Icon(Icons.add),
         label: const Text('Patrouille'),
-        backgroundColor: AppColors.ember,
+        backgroundColor: AppPalette.of(context).accent,
       ),
     );
   }
@@ -205,7 +208,7 @@ class _PatrouilleScreenState extends State<PatrouilleScreen> {
     final avatarImage = avatarImageFor(s.photoPath);
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: AppColors.mossLight,
+        backgroundColor: AppPalette.of(context).successSoft,
         backgroundImage: avatarImage,
         child: avatarImage == null ? Text(s.prenom.isNotEmpty ? s.prenom[0] : '?') : null,
       ),
@@ -213,8 +216,11 @@ class _PatrouilleScreenState extends State<PatrouilleScreen> {
       trailing: s.rolePatrouille == RolePatrouille.membre
           ? null
           : Chip(
-              label: Text(s.rolePatrouille.shortLabel, style: const TextStyle(fontSize: 11, color: Colors.white)),
-              backgroundColor: AppColors.forest,
+              label: Text(
+                s.rolePatrouille.shortLabel,
+                style: const TextStyle(fontSize: 11, color: Colors.white),
+              ),
+              backgroundColor: AppPalette.of(context).primaryDeep,
               padding: EdgeInsets.zero,
               visualDensity: VisualDensity.compact,
             ),

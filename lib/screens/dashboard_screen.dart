@@ -93,14 +93,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Container(
               width: 72,
               height: 72,
-              decoration: const BoxDecoration(
-                color: AppColors.parchmentDeep,
+              decoration: BoxDecoration(
+                color: AppPalette.of(context).surfaceRaised,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.sync_problem_outlined,
                 size: 34,
-                color: AppColors.forest,
+                color: AppPalette.of(context).primary,
               ),
             ),
             const SizedBox(height: 16),
@@ -108,17 +108,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
               'Le tableau de bord est indisponible.',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: AppColors.forest,
-                    fontWeight: FontWeight.w700,
-                  ),
+                color: AppPalette.of(context).primary,
+                fontWeight: FontWeight.w700,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               'Tes données restent sur cet appareil. Réessaie le chargement.',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.ink.withValues(alpha: 0.7),
-                  ),
+                color: AppPalette.of(context).textMuted,
+              ),
             ),
             const SizedBox(height: 16),
             FilledButton.icon(
@@ -151,7 +151,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
       decoration: BoxDecoration(
-        gradient: AppGradients.header,
+        gradient: AppGradients.headerFor(context),
         borderRadius: BorderRadius.circular(24),
         boxShadow: AppShadows.card,
       ),
@@ -160,16 +160,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.wb_sunny_outlined,
                 size: 17,
-                color: AppColors.khakiLight,
+                color: AppPalette.of(context).onBrand,
               ),
               const SizedBox(width: 7),
               Text(
                 '$greeting · ${_capitalize(date)}',
-                style: const TextStyle(
-                  color: AppColors.khakiLight,
+                style: TextStyle(
+                  color: AppPalette.of(context).onBrand,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
@@ -180,11 +180,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Text(
             title,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: Colors.white,
-                  height: 1.13,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.5,
-                ),
+              color: Colors.white,
+              height: 1.13,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
@@ -192,9 +192,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ? 'Ouvre une réunion dans l’historique, puis retrouve l’appel ici.'
                 : 'Scanne les badges et suis les présences en direct.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.84),
-                  height: 1.35,
-                ),
+              color: Colors.white.withValues(alpha: 0.84),
+              height: 1.35,
+            ),
           ),
           const SizedBox(height: 18),
           SizedBox(
@@ -208,8 +208,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               label: Text(action),
               style: FilledButton.styleFrom(
-                backgroundColor: AppColors.khakiLight,
-                foregroundColor: AppColors.forestDark,
+                backgroundColor: AppPalette.of(context).secondarySoft,
+                foregroundColor: AppPalette.of(context).onSecondarySoft,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 textStyle: const TextStyle(fontWeight: FontWeight.w700),
               ),
@@ -227,10 +227,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Text(
       title,
       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: AppColors.forest,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.2,
-          ),
+        color: AppPalette.of(context).primary,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -0.2,
+      ),
     );
   }
 
@@ -283,22 +283,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon, color: AppColors.forest, size: 21),
+              Icon(icon, color: AppPalette.of(context).primary, size: 21),
               const SizedBox(height: 12),
               Text(
                 value,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: AppColors.forest,
-                      fontWeight: FontWeight.w800,
-                      height: 1,
-                    ),
+                  color: AppPalette.of(context).primary,
+                  fontWeight: FontWeight.w800,
+                  height: 1,
+                ),
               ),
               const SizedBox(height: 5),
               Text(
                 label,
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 4),
               Text(
@@ -306,12 +306,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: attention
-                          ? AppColors.ember
-                          : AppColors.ink.withValues(alpha: 0.65),
-                      fontWeight:
-                          attention ? FontWeight.w700 : FontWeight.normal,
-                    ),
+                  color: attention
+                      ? AppPalette.of(context).accent
+                      : AppPalette.of(context).textMuted,
+                  fontWeight: attention ? FontWeight.w700 : FontWeight.normal,
+                ),
               ),
             ],
           ),
@@ -328,14 +327,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              const Icon(Icons.cake_outlined, color: AppColors.khaki),
+              Icon(
+                Icons.cake_outlined,
+                color: AppPalette.of(context).secondary,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   'Pas d’anniversaire prévu dans les 30 prochains jours.',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.ink.withValues(alpha: 0.75),
-                      ),
+                    color: AppPalette.of(context).textMuted,
+                  ),
                 ),
               ),
             ],
@@ -362,9 +364,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Text(
                   '+ ${_data.anniversaires.length - birthdays.length} autre${_data.anniversaires.length - birthdays.length == 1 ? '' : 's'} anniversaire${_data.anniversaires.length - birthdays.length == 1 ? '' : 's'} à venir',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.ink.withValues(alpha: 0.65),
-                        fontWeight: FontWeight.w600,
-                      ),
+                    color: AppPalette.of(context).textMuted,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -380,16 +382,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
       leading: CircleAvatar(
-        backgroundColor:
-            isToday ? AppColors.ember.withValues(alpha: 0.12) : AppColors.mossLight,
+        backgroundColor: isToday
+            ? AppPalette.of(context).accentSoft
+            : AppPalette.of(context).successSoft,
         backgroundImage: avatarImage,
         child: avatarImage == null
             ? Text(
                 birthday.scout.prenom.isNotEmpty
                     ? birthday.scout.prenom.characters.first.toUpperCase()
                     : '?',
-                style: const TextStyle(
-                  color: AppColors.forest,
+                style: TextStyle(
+                  color: AppPalette.of(context).primary,
                   fontWeight: FontWeight.w700,
                 ),
               )
@@ -403,11 +406,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       subtitle: Text(isToday ? 'Aujourd’hui 🎉' : date),
       trailing: isToday
-          ? const Icon(Icons.cake_outlined, color: AppColors.ember)
+          ? Icon(Icons.cake_outlined, color: AppPalette.of(context).accent)
           : Text(
               birthday.daysUntil == 1 ? 'Demain' : 'J-${birthday.daysUntil}',
-              style: const TextStyle(
-                color: AppColors.forest,
+              style: TextStyle(
+                color: AppPalette.of(context).primary,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -422,14 +425,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              const Icon(Icons.fact_check_outlined, color: AppColors.forest),
+              Icon(
+                Icons.fact_check_outlined,
+                color: AppPalette.of(context).primary,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   'Les tendances de présence apparaîtront après une première réunion terminée.',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.ink.withValues(alpha: 0.75),
-                      ),
+                    color: AppPalette.of(context).textMuted,
+                  ),
                 ),
               ),
             ],
@@ -456,7 +462,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Container(
                   width: 1,
                   height: 48,
-                  color: AppColors.khakiLight,
+                  color: AppPalette.of(context).outline,
                 ),
                 Expanded(
                   child: _attendanceMetric(
@@ -472,16 +478,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: LinearProgressIndicator(
                 value: (_data.tauxDerniereReunion ?? 0) / 100,
                 minHeight: 8,
-                backgroundColor: AppColors.mossLight,
-                color: AppColors.moss,
+                backgroundColor: AppPalette.of(context).successSoft,
+                color: AppPalette.of(context).success,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               'Calculée sur ${_data.reunionsConsiderees} réunion${_data.reunionsConsiderees == 1 ? '' : 's'} terminée${_data.reunionsConsiderees == 1 ? '' : 's'}',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.ink.withValues(alpha: 0.65),
-                  ),
+                color: AppPalette.of(context).textMuted,
+              ),
             ),
           ],
         ),
@@ -495,18 +501,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Text(
           value == null ? '—' : '${value.toStringAsFixed(0)}%',
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: AppColors.forest,
-                fontWeight: FontWeight.w800,
-              ),
+            color: AppPalette.of(context).primary,
+            fontWeight: FontWeight.w800,
+          ),
         ),
         const SizedBox(height: 3),
         Text(
           label,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.ink.withValues(alpha: 0.7),
-                fontWeight: FontWeight.w600,
-              ),
+            color: AppPalette.of(context).textMuted,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ],
     );
@@ -553,9 +559,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: LinearProgressIndicator(
                       value: (stat.tauxPresence / 100).clamp(0.0, 1.0),
                       minHeight: 7,
-                      backgroundColor: AppColors.khakiLight.withValues(
-                        alpha: 0.5,
-                      ),
+                      backgroundColor: AppPalette.of(context).secondarySoft,
                       color: color,
                     ),
                   ),

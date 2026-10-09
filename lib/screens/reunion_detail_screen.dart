@@ -123,10 +123,10 @@ class _ReunionDetailScreenState extends State<ReunionDetailScreen> {
             Text(
                 DateFormat('EEEE d MMMM yyyy', 'fr_FR')
                     .format(DateTime.parse(widget.reunion.date)),
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.forest)),
+                    color: AppPalette.of(context).primary)),
             Text(
                 '${widget.reunion.heureDebut} → ${widget.reunion.heureFin ?? 'en cours'}'),
             if (widget.reunion.compteRendu?.isNotEmpty == true) ...[
@@ -170,8 +170,9 @@ class _ReunionDetailScreenState extends State<ReunionDetailScreen> {
           Padding(
               padding: const EdgeInsets.fromLTRB(14, 14, 14, 6),
               child: Text(title,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, color: AppColors.forest))),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: AppPalette.of(context).primary))),
           if (scouts.isEmpty)
             const Padding(
                 padding: EdgeInsets.all(14), child: Text('Aucun scout.'))
@@ -183,7 +184,9 @@ class _ReunionDetailScreenState extends State<ReunionDetailScreen> {
                   );
               return ListTile(
                 leading: Icon(present ? Icons.check_circle : Icons.cancel,
-                    color: present ? AppColors.moss : AppColors.danger),
+                    color: present
+                        ? AppPalette.of(context).success
+                        : AppPalette.of(context).danger),
                 title: Text(scout.displayName),
                 subtitle: present && presence != null
                     ? Text(DateFormat('HH:mm')
@@ -199,16 +202,19 @@ class _ReunionDetailScreenState extends State<ReunionDetailScreen> {
   Widget _statCard(String value, String label) => Container(
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-            color: AppColors.mossLight,
+            color: AppPalette.of(context).successSoft,
             borderRadius: BorderRadius.circular(10)),
         child: Column(children: [
           Text(value,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 19,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.forest)),
+                  color: AppPalette.of(context).primary)),
           Text(label,
-              style: const TextStyle(fontSize: 11, color: Colors.black54)),
+              style: TextStyle(
+                fontSize: 11,
+                color: AppPalette.of(context).textMuted,
+              )),
         ]),
       );
 }

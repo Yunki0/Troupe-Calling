@@ -125,7 +125,10 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen>
         child: Wrap(
           children: [
             ListTile(
-              leading: const Icon(Icons.photo_camera, color: AppColors.forest),
+              leading: Icon(
+                Icons.photo_camera,
+                color: AppPalette.of(ctx).primary,
+              ),
               title: const Text('Prendre une photo'),
               onTap: () {
                 Navigator.pop(ctx);
@@ -133,7 +136,10 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen>
               },
             ),
             ListTile(
-              leading: const Icon(Icons.photo_library, color: AppColors.forest),
+              leading: Icon(
+                Icons.photo_library,
+                color: AppPalette.of(ctx).primary,
+              ),
               title: const Text('Choisir dans la galerie'),
               onTap: () {
                 Navigator.pop(ctx);
@@ -275,7 +281,7 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen>
         title: Text(_scout.displayName),
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: AppColors.coral,
+          indicatorColor: AppPalette.of(context).accent,
           unselectedLabelColor: Colors.white,
           labelColor: Colors.white,
           tabs: const [
@@ -305,16 +311,16 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen>
                     final avatarImage = avatarImageFor(_scout.photoPath);
                     return CircleAvatar(
                       radius: 48,
-                      backgroundColor: AppColors.mossLight,
+                      backgroundColor: AppPalette.of(context).successSoft,
                       backgroundImage: avatarImage,
                       child: avatarImage == null
                           ? Text(
                               _scout.prenom.isNotEmpty
                                   ? _scout.prenom[0].toUpperCase()
                                   : '?',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 32,
-                                color: AppColors.forest,
+                                color: AppPalette.of(context).primary,
                               ),
                             )
                           : null,
@@ -326,8 +332,8 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen>
                   right: 0,
                   child: Container(
                     padding: const EdgeInsets.all(6),
-                    decoration: const BoxDecoration(
-                      color: AppColors.ember,
+                    decoration: BoxDecoration(
+                      color: AppPalette.of(context).accent,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -383,11 +389,11 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen>
           maxLines: 2,
         ),
         const SizedBox(height: 20),
-        const Text(
+        Text(
           'Contact parent',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: AppColors.forest,
+            color: AppPalette.of(context).primary,
           ),
         ),
         const SizedBox(height: 8),
@@ -402,11 +408,11 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen>
           keyboardType: TextInputType.phone,
         ),
         const SizedBox(height: 20),
-        const Text(
+        Text(
           'Patrouille',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: AppColors.forest,
+            color: AppPalette.of(context).primary,
           ),
         ),
         const SizedBox(height: 8),
@@ -478,7 +484,7 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen>
               width: 300,
               padding: const EdgeInsets.fromLTRB(22, 20, 22, 24),
               decoration: BoxDecoration(
-                gradient: AppGradients.header,
+                gradient: AppGradients.headerFor(context),
                 borderRadius: BorderRadius.circular(26),
                 boxShadow: AppShadows.soft,
                 border: Border.all(
@@ -490,16 +496,16 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen>
                 children: [
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.emoji_nature,
-                        color: AppColors.khakiLight,
+                        color: AppPalette.of(context).onBrand,
                         size: 15,
                       ),
                       const SizedBox(width: 6),
-                      const Text(
+                      Text(
                         'CARTE SCOUT',
                         style: TextStyle(
-                          color: AppColors.khakiLight,
+                          color: AppPalette.of(context).onBrand,
                           fontSize: 10.5,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 2,
@@ -523,7 +529,7 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen>
                             patrouille.nom,
                             style: TextStyle(
                               color: accentColor == AppColors.khaki
-                                  ? AppColors.khakiLight
+                                  ? AppPalette.of(context).secondarySoft
                                   : Colors.white,
                               fontSize: 10.5,
                               fontWeight: FontWeight.w700,
@@ -541,16 +547,16 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen>
                         backgroundColor: AppColors.forestDark,
                         child: CircleAvatar(
                           radius: 33,
-                          backgroundColor: AppColors.mossLight,
+                          backgroundColor: AppPalette.of(context).successSoft,
                           backgroundImage: avatarImage,
                           child: avatarImage == null
                               ? Text(
                                   _scout.prenom.isNotEmpty
                                       ? _scout.prenom[0].toUpperCase()
                                       : '?',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 26,
-                                    color: AppColors.forest,
+                                    color: AppPalette.of(context).primary,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 )
@@ -573,8 +579,8 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen>
                     const SizedBox(height: 2),
                     Text(
                       _scout.rolePatrouille.label,
-                      style: const TextStyle(
-                        color: AppColors.khakiLight,
+                      style: TextStyle(
+                        color: AppPalette.of(context).onBrand,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
@@ -608,10 +614,13 @@ class _ScoutProfileScreenState extends State<ScoutProfileScreen>
             ),
           ),
           const SizedBox(height: 10),
-          const Text(
+          Text(
             "Ce badge s'affiche à l'écran ou se plastifie une fois imprimé.",
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 11.5, color: Colors.black54),
+            style: TextStyle(
+              fontSize: 11.5,
+              color: AppPalette.of(context).textMuted,
+            ),
           ),
           const SizedBox(height: 18),
           ElevatedButton.icon(

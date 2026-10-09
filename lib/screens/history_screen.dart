@@ -128,12 +128,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
         children: [
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text('Réunions',
                     style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.forest)),
+                        color: AppPalette.of(context).primary)),
               ),
               FilledButton.icon(
                 onPressed: _createReunion,
@@ -185,15 +185,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         child: Text(
                           DateFormat('EEEE d MMMM yyyy', 'fr_FR')
                               .format(DateTime.parse(reunion.date)),
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: AppColors.forest),
+                              color: AppPalette.of(context).primary),
                         ),
                       ),
                       Chip(
                         label: Text(open ? 'Ouverte' : 'Terminée'),
-                        backgroundColor:
-                            open ? AppColors.mossLight : Colors.black12,
+                        backgroundColor: open
+                            ? AppPalette.of(context).successSoft
+                            : AppPalette.of(context).surfaceRaised,
                       ),
                     ],
                   ),

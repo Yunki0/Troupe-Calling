@@ -242,7 +242,10 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
         children: [
           Card(
               child: ListTile(
-            leading: const Icon(Icons.event, color: AppColors.forest),
+            leading: Icon(
+              Icons.event,
+              color: AppPalette.of(context).primary,
+            ),
             title: Text(DateFormat('EEEE d MMMM yyyy', 'fr_FR')
                 .format(DateTime.parse(reunion.date))),
             subtitle: Text(
@@ -294,7 +297,10 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
                   heightFactor: .55,
                   child: DecoratedBox(
                       decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.khakiLight, width: 3),
+                    border: Border.all(
+                      color: AppPalette.of(context).secondarySoft,
+                      width: 3,
+                    ),
                     borderRadius: BorderRadius.circular(12),
                   )),
                 ))),
@@ -340,21 +346,33 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
     );
   }
 
-  Widget _emptyState() => const Center(
-          child: Padding(
-        padding: EdgeInsets.all(24),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.event_busy, size: 56, color: AppColors.khaki),
-          SizedBox(height: 12),
-          Text('Aucune réunion ouverte.',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          SizedBox(height: 8),
+  Widget _emptyState() => Center(
+    child: Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.event_busy, size: 56, color: AppPalette.of(context).secondary),
+          const SizedBox(height: 12),
           Text(
-              'Crée une réunion dans l’onglet Historique avant de commencer l’appel.',
-              textAlign: TextAlign.center),
-        ]),
-      ));
+            'Aucune réunion ouverte.',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Crée une réunion dans l’onglet Historique avant de commencer l’appel.',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: AppPalette.of(context).textMuted,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 
   Widget _cameraFallback() => Center(
           child: Padding(
@@ -376,9 +394,9 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
   Color _flashColor() {
     switch (_flashType) {
       case _FlashType.ok:
-        return AppColors.moss.withValues(alpha: .94);
+        return AppColors.success.withValues(alpha: .94);
       case _FlashType.duplicate:
-        return AppColors.khaki.withValues(alpha: .94);
+        return AppColors.lagoon.withValues(alpha: .94);
       case _FlashType.unknown:
       case _FlashType.inactive:
       case _FlashType.error:
@@ -389,16 +407,19 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
   Widget _statCard(String value, String label) => Container(
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-            color: AppColors.mossLight,
+            color: AppPalette.of(context).successSoft,
             borderRadius: BorderRadius.circular(10)),
         child: Column(children: [
           Text(value,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 19,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.forest)),
+                  color: AppPalette.of(context).primary)),
           Text(label,
-              style: const TextStyle(fontSize: 11, color: Colors.black54)),
+              style: TextStyle(
+                fontSize: 11,
+                color: AppPalette.of(context).textMuted,
+              )),
         ]),
       );
 }

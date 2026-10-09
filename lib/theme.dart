@@ -37,6 +37,117 @@ class AppColors {
   static const moss = success;
   static const mossLight = successSoft;
   static const gold = Color(0xFFD69A32);
+
+  static const darkCanvas = Color(0xFF141B16);
+  static const darkSurface = Color(0xFF1C2720);
+  static const darkSurfaceWarm = Color(0xFF243229);
+  static const darkPrimary = Color(0xFFA6D391);
+  static const darkPrimaryDeep = Color(0xFF294633);
+  static const darkSecondary = Color(0xFFC4D5BD);
+  static const darkCoral = Color(0xFFF1A18A);
+  static const darkText = Color(0xFFE7EEE7);
+  static const darkTextMuted = Color(0xFFB2C0B4);
+  static const darkOutline = Color(0xFF405346);
+  static const darkSoftGreen = Color(0xFF304435);
+  static const darkSoftCoral = Color(0xFF432F29);
+  static const darkSuccess = Color(0xFF9BD0A7);
+  static const darkWarning = Color(0xFFFFD18A);
+  static const darkDanger = Color(0xFFFFB4AB);
+}
+
+class AppPalette {
+  const AppPalette._({
+    required this.canvas,
+    required this.surface,
+    required this.surfaceRaised,
+    required this.inputSurface,
+    required this.primary,
+    required this.primaryDeep,
+    required this.secondary,
+    required this.secondarySoft,
+    required this.onSecondarySoft,
+    required this.onBrand,
+    required this.accent,
+    required this.accentSoft,
+    required this.text,
+    required this.textMuted,
+    required this.success,
+    required this.successSoft,
+    required this.warning,
+    required this.warningSoft,
+    required this.danger,
+    required this.outline,
+  });
+
+  final Color canvas;
+  final Color surface;
+  final Color surfaceRaised;
+  final Color inputSurface;
+  final Color primary;
+  final Color primaryDeep;
+  final Color secondary;
+  final Color secondarySoft;
+  final Color onSecondarySoft;
+  final Color onBrand;
+  final Color accent;
+  final Color accentSoft;
+  final Color text;
+  final Color textMuted;
+  final Color success;
+  final Color successSoft;
+  final Color warning;
+  final Color warningSoft;
+  final Color danger;
+  final Color outline;
+
+  static const light = AppPalette._(
+    canvas: AppColors.canvas,
+    surface: AppColors.surface,
+    surfaceRaised: AppColors.surfaceWarm,
+    inputSurface: AppColors.surfaceWarm,
+    primary: AppColors.primary,
+    primaryDeep: AppColors.primaryDeep,
+    secondary: AppColors.lagoon,
+    secondarySoft: AppColors.lagoonSoft,
+    onSecondarySoft: AppColors.primaryDeep,
+    onBrand: AppColors.lagoonSoft,
+    accent: AppColors.coral,
+    accentSoft: AppColors.coralSoft,
+    text: AppColors.text,
+    textMuted: AppColors.textMuted,
+    success: AppColors.success,
+    successSoft: AppColors.successSoft,
+    warning: AppColors.warning,
+    warningSoft: AppColors.warningSoft,
+    danger: AppColors.danger,
+    outline: AppColors.outline,
+  );
+
+  static const dark = AppPalette._(
+    canvas: AppColors.darkCanvas,
+    surface: AppColors.darkSurface,
+    surfaceRaised: AppColors.darkSurfaceWarm,
+    inputSurface: Color(0xFF202C24),
+    primary: AppColors.darkPrimary,
+    primaryDeep: AppColors.darkPrimaryDeep,
+    secondary: AppColors.darkSecondary,
+    secondarySoft: AppColors.darkSoftGreen,
+    onSecondarySoft: AppColors.darkText,
+    onBrand: AppColors.darkSecondary,
+    accent: AppColors.darkCoral,
+    accentSoft: AppColors.darkSoftCoral,
+    text: AppColors.darkText,
+    textMuted: AppColors.darkTextMuted,
+    success: AppColors.darkSuccess,
+    successSoft: AppColors.darkSoftGreen,
+    warning: AppColors.darkWarning,
+    warningSoft: Color(0xFF403724),
+    danger: AppColors.darkDanger,
+    outline: AppColors.darkOutline,
+  );
+
+  static AppPalette of(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark ? dark : light;
 }
 
 class AppGradients {
@@ -45,6 +156,15 @@ class AppGradients {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
+
+  static const headerDark = LinearGradient(
+    colors: [Color(0xFF294633), Color(0xFF1D3024)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static LinearGradient headerFor(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark ? headerDark : header;
 
   static const emberGlow = LinearGradient(
     colors: [AppColors.coral, Color(0xFF963C2A)],
@@ -264,6 +384,190 @@ ThemeData buildAppTheme() {
     textTheme: Typography.material2021().black.apply(
       bodyColor: AppColors.ink,
       displayColor: AppColors.forest,
+      fontFamily: 'Roboto',
+    ),
+    fontFamily: 'Roboto',
+  );
+}
+
+ThemeData buildAppDarkTheme() {
+  const colorScheme = ColorScheme(
+    brightness: Brightness.dark,
+    primary: AppColors.darkPrimary,
+    onPrimary: AppColors.darkCanvas,
+    primaryContainer: AppColors.darkPrimaryDeep,
+    onPrimaryContainer: AppColors.darkText,
+    secondary: AppColors.darkSecondary,
+    onSecondary: AppColors.darkCanvas,
+    secondaryContainer: AppColors.darkSoftGreen,
+    onSecondaryContainer: AppColors.darkText,
+    tertiary: AppColors.darkCoral,
+    onTertiary: AppColors.darkCanvas,
+    error: AppColors.darkDanger,
+    onError: Color(0xFF690005),
+    surface: AppColors.darkCanvas,
+    onSurface: AppColors.darkText,
+    surfaceContainerLowest: AppColors.darkCanvas,
+    surfaceContainerLow: AppColors.darkSurface,
+    surfaceContainer: AppColors.darkSurface,
+    surfaceContainerHigh: AppColors.darkSurfaceWarm,
+    surfaceContainerHighest: Color(0xFF2B3A30),
+    onSurfaceVariant: AppColors.darkTextMuted,
+    outline: AppColors.darkOutline,
+    outlineVariant: Color(0xFF344238),
+    shadow: Colors.black,
+    scrim: Colors.black,
+    inverseSurface: AppColors.darkText,
+    onInverseSurface: AppColors.darkCanvas,
+    inversePrimary: AppColors.primary,
+  );
+
+  return ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.dark,
+    colorScheme: colorScheme,
+    scaffoldBackgroundColor: AppColors.darkCanvas,
+    appBarTheme: const AppBarTheme(
+      backgroundColor: AppColors.darkPrimaryDeep,
+      foregroundColor: AppColors.darkText,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      centerTitle: false,
+      toolbarHeight: 68,
+      titleTextStyle: TextStyle(
+        color: AppColors.darkText,
+        fontSize: 18,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -0.2,
+      ),
+    ),
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: AppColors.darkSurface,
+      indicatorColor: AppColors.darkSoftGreen,
+      elevation: 0,
+      height: 72,
+      surfaceTintColor: Colors.transparent,
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+      iconTheme: WidgetStateProperty.resolveWith((states) {
+        return IconThemeData(
+          color: states.contains(WidgetState.selected)
+              ? AppColors.darkPrimary
+              : AppColors.darkTextMuted,
+          size: states.contains(WidgetState.selected) ? 23 : 21,
+        );
+      }),
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        return TextStyle(
+          color: states.contains(WidgetState.selected)
+              ? AppColors.darkPrimary
+              : AppColors.darkTextMuted,
+          fontSize: 11,
+          fontWeight: states.contains(WidgetState.selected)
+              ? FontWeight.w700
+              : FontWeight.w500,
+        );
+      }),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.darkPrimaryDeep,
+        foregroundColor: AppColors.darkText,
+        minimumSize: const Size(48, 48),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        backgroundColor: AppColors.darkPrimary,
+        foregroundColor: AppColors.darkCanvas,
+        minimumSize: const Size(48, 48),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.darkPrimary,
+        side: const BorderSide(color: AppColors.darkOutline),
+        minimumSize: const Size(48, 48),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+    ),
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: AppColors.darkCoral,
+      foregroundColor: AppColors.darkCanvas,
+    ),
+    cardTheme: CardThemeData(
+      color: AppColors.darkSurface,
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: const BorderSide(color: AppColors.darkOutline),
+      ),
+    ),
+    chipTheme: ChipThemeData(
+      backgroundColor: AppColors.darkSoftGreen,
+      labelStyle: const TextStyle(
+        color: AppColors.darkText,
+        fontWeight: FontWeight.w600,
+        fontSize: 12,
+      ),
+      side: BorderSide.none,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    ),
+    listTileTheme: const ListTileThemeData(
+      iconColor: AppColors.darkPrimary,
+      textColor: AppColors.darkText,
+    ),
+    dividerTheme: const DividerThemeData(
+      color: AppColors.darkOutline,
+      thickness: 1,
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: AppColors.darkSurface,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      titleTextStyle: const TextStyle(
+        color: AppColors.darkText,
+        fontSize: 20,
+        fontWeight: FontWeight.w800,
+      ),
+    ),
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: AppColors.darkSurface,
+      surfaceTintColor: Colors.transparent,
+      showDragHandle: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+    ),
+    snackBarTheme: SnackBarThemeData(
+      backgroundColor: AppColors.darkSurfaceWarm,
+      contentTextStyle: const TextStyle(color: AppColors.darkText),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: const Color(0xFF202C24),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: AppColors.darkOutline),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: AppColors.darkOutline),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: AppColors.darkPrimary, width: 1.6),
+      ),
+      labelStyle: const TextStyle(color: AppColors.darkTextMuted),
+    ),
+    textTheme: Typography.material2021().white.apply(
+      bodyColor: AppColors.darkText,
+      displayColor: AppColors.darkPrimary,
       fontFamily: 'Roboto',
     ),
     fontFamily: 'Roboto',
