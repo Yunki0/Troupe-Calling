@@ -61,6 +61,24 @@ flutter build apk --debug
 Le fichier généré se trouve dans
 `build/app/outputs/flutter-apk/app-debug.apk`.
 
+Pour construire un APK release signé :
+
+```bash
+flutter build apk --release
+```
+
+La signature release utilise le keystore local référencé dans
+`android/key.properties` (ignoré par Git). Le keystore doit rester dans
+`android/app/` et le champ `storeFile` doit contenir son nom de fichier.
+Ne partage ni ce fichier ni les mots de passe associés. Conserve une copie
+sûre du keystore et de ses mots de passe : les futures mises à jour doivent
+être signées avec cette même clé.
+
+L’APK release est généré dans
+`build/app/outputs/flutter-apk/app-release.apk`.
+La page de téléchargement du projet propose automatiquement l’APK joint à la
+dernière release GitHub publiée.
+
 ## Vérifications
 
 Les tests couvrent les modèles, les migrations SQLite, la sauvegarde et la
@@ -101,6 +119,6 @@ test/               # Tests unitaires et de régression
 ## Pistes d’évolution
 
 - Continuer les tests d’interface sur les parcours d’appel et de restauration.
-- Finaliser la configuration de signature avant une publication Android.
+- Définir l’identifiant Android définitif avant toute publication sur Google Play.
 - Concevoir une synchronisation uniquement après définition des rôles, du
   consentement, de la rétention et de la protection des données des jeunes.

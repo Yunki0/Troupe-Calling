@@ -1,8 +1,25 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+val releaseSigningPropertiesFile = rootProject.file("key.properties")
+val releaseSigningProperties = Properties().apply {
+    if (releaseSigningPropertiesFile.exists()) {
+        releaseSigningPropertiesFile.inputStream().use(::load)
+    }
+}
+val releaseStoreFile = releaseSigningProperties.getProperty("storeFile")?.trim()
+val releaseSigningConfigured = listOf(
+    "storePassword",
+    "keyPassword",
+    "keyAlias",
+).all { !releaseSigningProperties.getProperty(it).isNullOrBlank() } &&
+    !releaseStoreFile.isNullOrBlank() &&
+    file(releaseStoreFile).isFile
 
 android {
     namespace = "com.example.appel_scout"
@@ -25,11 +42,37 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (releaseSigningConfigured) {
+            create("release") {
+                keyAlias = releaseSigningProperties.getProperty("keyAlias").trim()
+                keyPassword = releaseSigningProperties.getProperty("keyPassword").trim()
+                storeFile = file(releaseStoreFile!!)
+                storePassword = releaseSigningProperties
+                    .getProperty("storePassword")
+                    .trim()
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            if (releaseSigningConfigured) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
+    }
+}
+
+tasks.configureEach {
+    if (name == "assembleRelease" || name == "bundleRelease") {
+        doFirst {
+            if (!releaseSigningConfigured) {
+                throw GradleException(
+                    "Release signing is not configured. Check android/key.properties " +
+                        "and the keystore path before building a release.",
+                )
+            }
         }
     }
 }
